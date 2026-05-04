@@ -1,8 +1,8 @@
-package com.petadopt.interactionservice.controller;
+package com.petadopt.interactionservice.controllers;
 
 import com.petadopt.interactionservice.dto.FavoriteRequest;
-import com.petadopt.interactionservice.model.Favorite;
-import com.petadopt.interactionservice.service.FavoriteService;
+import com.petadopt.interactionservice.models.Favorite;
+import com.petadopt.interactionservice.services.FavoriteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

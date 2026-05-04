@@ -1,9 +1,9 @@
-package com.petadopt.interactionservice.service;
+package com.petadopt.interactionservice.services;
 
 import com.petadopt.interactionservice.dto.FavoriteRequest;
 import com.petadopt.interactionservice.exception.ResourceNotFoundException;
-import com.petadopt.interactionservice.model.Favorite;
-import com.petadopt.interactionservice.repository.FavoriteRepository;
+import com.petadopt.interactionservice.models.Favorite;
+import com.petadopt.interactionservice.repositories.FavoriteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

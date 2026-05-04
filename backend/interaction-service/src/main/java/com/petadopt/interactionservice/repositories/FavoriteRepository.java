@@ -1,6 +1,6 @@
-package com.petadopt.interactionservice.repository;
+package com.petadopt.interactionservice.repositories;
 
-import com.petadopt.interactionservice.model.Favorite;
+import com.petadopt.interactionservice.models.Favorite;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

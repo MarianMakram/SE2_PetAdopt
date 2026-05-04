@@ -1,8 +1,8 @@
-package com.petadopt.interactionservice.controller;
+package com.petadopt.interactionservice.controllers;
 
 import com.petadopt.interactionservice.dto.NotificationRequest;
-import com.petadopt.interactionservice.model.Notification;
-import com.petadopt.interactionservice.service.NotificationService;
+import com.petadopt.interactionservice.models.Notification;
+import com.petadopt.interactionservice.services.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,9 +1,9 @@
-package com.petadopt.interactionservice.service;
+package com.petadopt.interactionservice.services;
 
 import com.petadopt.interactionservice.dto.ReviewRequest;
 import com.petadopt.interactionservice.exception.ResourceNotFoundException;
-import com.petadopt.interactionservice.model.Review;
-import com.petadopt.interactionservice.repository.ReviewRepository;
+import com.petadopt.interactionservice.models.Review;
+import com.petadopt.interactionservice.repositories.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +21,8 @@ public class ReviewService {
         }
 
         Review review = Review.builder()
-                .userId(request.getUserId())
-                .targetId(request.getTargetId())
+                .adopterId(request.getAdopterId())
+                .petId(request.getPetId())
                 .rating(request.getRating())
                 .comment(request.getComment())
                 .build();
@@ -30,17 +30,17 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
+    public List<Review> getReviewsByPetId(Long petId) {
+        return reviewRepository.findByPetId(petId);
+    }
+
+    public List<Review> getReviewsByAdopterId(Long adopterId) {
+        return reviewRepository.findByAdopterId(adopterId);
+    }
+
     public Review getReviewById(Long id) {
         return reviewRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + id));
-    }
-
-    public List<Review> getReviewsByTargetId(Long targetId) {
-        return reviewRepository.findByTargetId(targetId);
-    }
-
-    public List<Review> getReviewsByUserId(Long userId) {
-        return reviewRepository.findByUserId(userId);
     }
 
     public Review updateReview(Long id, ReviewRequest request) {

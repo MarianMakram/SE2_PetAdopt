@@ -1,4 +1,4 @@
-package com.petadopt.interactionservice.model;
+package com.petadopt.interactionservice.models;
 
 import jakarta.persistence.*;
 import lombok.*;

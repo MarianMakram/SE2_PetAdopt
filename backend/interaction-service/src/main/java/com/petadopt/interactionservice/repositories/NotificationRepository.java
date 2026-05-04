@@ -1,6 +1,6 @@
-package com.petadopt.interactionservice.repository;
+package com.petadopt.interactionservice.repositories;
 
-import com.petadopt.interactionservice.model.Notification;
+import com.petadopt.interactionservice.models.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

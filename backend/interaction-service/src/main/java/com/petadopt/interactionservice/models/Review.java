@@ -1,4 +1,4 @@
-package com.petadopt.interactionservice.model;
+package com.petadopt.interactionservice.models;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -6,36 +6,43 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "notifications")
+@Table(name = "reviews")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Notification {
+public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private Long userId;
-
-    @Column(nullable = false, length = 500)
-    private String message;
+    private Long adopterId;
 
     @Column(nullable = false)
-    private String type; // e.g., APPLICATION_APPROVED, NEW_PET_MATCH
+    private Long petId;
 
     @Column(nullable = false)
-    private boolean isRead;
+    private Integer rating;
+
+    @Column(length = 1000)
+    private String comment;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    private LocalDateTime updatedAt;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        isRead = false;
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }

@@ -1,8 +1,8 @@
-package com.petadopt.interactionservice.controller;
+package com.petadopt.interactionservice.controllers;
 
 import com.petadopt.interactionservice.dto.ReviewRequest;
-import com.petadopt.interactionservice.model.Review;
-import com.petadopt.interactionservice.service.ReviewService;
+import com.petadopt.interactionservice.models.Review;
+import com.petadopt.interactionservice.services.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,19 +22,14 @@ public class ReviewController {
         return new ResponseEntity<>(reviewService.createReview(request), HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Review> getReviewById(@PathVariable Long id) {
-        return ResponseEntity.ok(reviewService.getReviewById(id));
+    @GetMapping("/pet/{petId}")
+    public ResponseEntity<List<Review>> getReviewsByPetId(@PathVariable Long petId) {
+        return ResponseEntity.ok(reviewService.getReviewsByPetId(petId));
     }
 
-    @GetMapping("/target/{targetId}")
-    public ResponseEntity<List<Review>> getReviewsByTargetId(@PathVariable Long targetId) {
-        return ResponseEntity.ok(reviewService.getReviewsByTargetId(targetId));
-    }
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Review>> getReviewsByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(reviewService.getReviewsByUserId(userId));
+    @GetMapping("/adopter/{adopterId}")
+    public ResponseEntity<List<Review>> getReviewsByAdopterId(@PathVariable Long adopterId) {
+        return ResponseEntity.ok(reviewService.getReviewsByAdopterId(adopterId));
     }
 
     @PutMapping("/{id}")

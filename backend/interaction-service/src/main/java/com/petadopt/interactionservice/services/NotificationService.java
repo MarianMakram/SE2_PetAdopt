@@ -1,9 +1,9 @@
-package com.petadopt.interactionservice.service;
+package com.petadopt.interactionservice.services;
 
 import com.petadopt.interactionservice.dto.NotificationRequest;
 import com.petadopt.interactionservice.exception.ResourceNotFoundException;
-import com.petadopt.interactionservice.model.Notification;
-import com.petadopt.interactionservice.repository.NotificationRepository;
+import com.petadopt.interactionservice.models.Notification;
+import com.petadopt.interactionservice.repositories.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
