@@ -22,16 +22,23 @@ public class PetController {
     public ResponseEntity<List<Pet>> getAllPets(
             @RequestParam(required = false) Species species,
             @RequestParam(required = false) PetStatus status,
-            @RequestParam(required = false) String breed) {
+            @RequestParam(required = false) String breed,
+            @RequestParam(required = false) Long ownerId) {
         
-        if (breed != null) {
+        System.out.println("DEBUG: getAllPets called with ownerId=" + ownerId + ", status=" + status);
+
+        if (ownerId != null) {
+            return ResponseEntity.ok(petService.getPetsByOwner(ownerId));
+        } else if (breed != null) {
             return ResponseEntity.ok(petService.getPetsByBreed(breed));
         } else if (species != null && status != null) {
             return ResponseEntity.ok(petService.getPetsBySpeciesAndStatus(species, status));
         } else if (status != null) {
             return ResponseEntity.ok(petService.getPetsByStatus(status));
         }
-        return ResponseEntity.ok(petService.getAllPets());
+        
+        // Default behavior: return only APPROVED pets for public view
+        return ResponseEntity.ok(petService.getPetsByStatus(PetStatus.APPROVED));
     }
 
     @GetMapping("/{id}")

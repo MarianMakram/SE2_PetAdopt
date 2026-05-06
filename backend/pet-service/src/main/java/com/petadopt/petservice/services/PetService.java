@@ -15,4 +15,5 @@ public interface PetService {
     List<Pet> getPetsByStatus(PetStatus status);
     List<Pet> getPetsBySpeciesAndStatus(Species species, PetStatus status);
     List<Pet> getPetsByBreed(String breed);
+    List<Pet> getPetsByOwner(Long ownerId);
 }

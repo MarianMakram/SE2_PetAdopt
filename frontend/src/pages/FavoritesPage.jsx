@@ -14,8 +14,19 @@ export default function FavoritesPage() {
     if (!user?.id) return;
     // Spring Boot: GET /favorites/user/{userId}
     apiClient.get(`/favorites/user/${user.id}`)
-      .then(response => {
-        setFavorites(response.data || []);
+      .then(async response => {
+        const favs = response.data || [];
+        // Enrich favorites with pet details
+        const enrichedFavs = await Promise.all(favs.map(async f => {
+          try {
+            const petRes = await apiClient.get(`/pets/${f.petId}`);
+            return { ...f, pet: petRes.data };
+          } catch (err) {
+            console.error(`Could not fetch pet ${f.petId}:`, err);
+            return f;
+          }
+        }));
+        setFavorites(enrichedFavs.filter(f => f.pet)); // Only show if pet details were found
       })
       .catch(err => console.error("Error fetching favorites:", err));
   }, [user]);

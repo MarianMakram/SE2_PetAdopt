@@ -78,8 +78,14 @@ public class AdoptionServiceImpl implements AdoptionService {
         
         Adoption savedAdoption = adoptionRepository.save(adoption);
 
-        // MOCKED: Bypassing pet service update
-        System.out.println("MOCK: Pet status updated to ADOPTED for petId: " + adoption.getPetId());
+        // Update pet status to ADOPTED in pet-service
+        try {
+            Pet petUpdate = new Pet();
+            petUpdate.setStatus("ADOPTED");
+            petServiceClient.updatePet((long) adoption.getPetId(), petUpdate);
+        } catch (Exception e) {
+            System.err.println("FAILED to update pet status to ADOPTED: " + e.getMessage());
+        }
 
         return savedAdoption;
     }

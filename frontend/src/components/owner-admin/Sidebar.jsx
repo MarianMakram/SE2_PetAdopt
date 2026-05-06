@@ -4,8 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 
 export default function Sidebar({ activeTab = 'Dashboard' }) {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'Admin';
-  const isAdopter = user?.role === 'Adopter';
+  const isAdmin = user?.role?.toUpperCase() === 'ADMIN';
+  const isAdopter = user?.role?.toUpperCase() === 'ADOPTER';
 
   return (
     <aside className="h-screen w-64 border-r border-cyan-200/20 bg-cyan-50 dark:bg-cyan-950 hidden md:flex flex-col py-6 gap-2 shrink-0 sticky top-0 overflow-y-auto">

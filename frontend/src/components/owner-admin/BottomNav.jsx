@@ -4,8 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 
 export default function BottomNav({ activeTab = 'Dashboard' }) {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'Admin';
-  const isAdopter = user?.role === 'Adopter';
+  const isAdmin = user?.role?.toUpperCase() === 'ADMIN';
+  const isAdopter = user?.role?.toUpperCase() === 'ADOPTER';
   return (
     <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 py-3 bg-white/80 dark:bg-cyan-950/80 backdrop-blur-lg rounded-t-[3rem] shadow-[0_-10px_30px_rgba(0,52,62,0.06)] border-t border-cyan-100 dark:border-cyan-800">
       {!isAdmin && !isAdopter && (

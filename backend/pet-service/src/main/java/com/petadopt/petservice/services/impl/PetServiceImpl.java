@@ -26,17 +26,17 @@ public class PetServiceImpl implements PetService {
         Pet existingPet = petRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pet not found with id: " + id));
         
-        existingPet.setName(pet.getName());
-        existingPet.setBreed(pet.getBreed());
-        existingPet.setSpecies(pet.getSpecies());
-        existingPet.setAge(pet.getAge());
-        existingPet.setAgeUnit(pet.getAgeUnit());
-        existingPet.setGender(pet.getGender());
-        existingPet.setStatus(pet.getStatus());
-        existingPet.setDescription(pet.getDescription());
-        existingPet.setHealthStatus(pet.getHealthStatus());
-        existingPet.setLocation(pet.getLocation());
-        existingPet.setImageUrls(pet.getImageUrls());
+        if (pet.getName() != null) existingPet.setName(pet.getName());
+        if (pet.getBreed() != null) existingPet.setBreed(pet.getBreed());
+        if (pet.getSpecies() != null) existingPet.setSpecies(pet.getSpecies());
+        if (pet.getAge() != null) existingPet.setAge(pet.getAge());
+        if (pet.getAgeUnit() != null) existingPet.setAgeUnit(pet.getAgeUnit());
+        if (pet.getGender() != null) existingPet.setGender(pet.getGender());
+        if (pet.getStatus() != null) existingPet.setStatus(pet.getStatus());
+        if (pet.getDescription() != null) existingPet.setDescription(pet.getDescription());
+        if (pet.getHealthStatus() != null) existingPet.setHealthStatus(pet.getHealthStatus());
+        if (pet.getLocation() != null) existingPet.setLocation(pet.getLocation());
+        if (pet.getImageUrls() != null) existingPet.setImageUrls(pet.getImageUrls());
         
         return petRepository.save(existingPet);
     }
@@ -70,5 +70,10 @@ public class PetServiceImpl implements PetService {
     @Override
     public List<Pet> getPetsByBreed(String breed) {
         return petRepository.findByBreedContainingIgnoreCase(breed);
+    }
+
+    @Override
+    public List<Pet> getPetsByOwner(Long ownerId) {
+        return petRepository.findByOwnerId(ownerId);
     }
 }

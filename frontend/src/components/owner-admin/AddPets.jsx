@@ -1,89 +1,55 @@
 import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 import Sidebar from "./SidebarAdd";
 
 // ── Images ──────────────────────────────────────────────────────────────────
+// ... (rest of imports/constants)
+const USER_IMG = "https://lh3.googleusercontent.com/aida-public/AB6AXuCllqjBLUU_YVcBJwMclBXg2UWYjfHrFB_kaHtuQtt7ZGkYC2I3WcIe8QZupa9yyjtcorIblDvtYla67QLP_3IIRmC9G8sMT03DJz1n9oS9_3REIn1CXqnftHBgrP4s1QCheWhFDYQfZ1WHZS7KRpmaapw-B0tEkJnJj82N8BLmI5KsgK_tuTmbLUody6_1D8pj3UBhwvYHvXY9CBp0ylNWt_DhCci2bfiQVYpbcZ3vkBXHvpo8JhGTnTMKzae20duva3tbuCPLkiA";
+const PET_IMG = "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80";
 
-const USER_IMG =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuCllqjBLUU_YVcBJwMclBXg2UWYjfHrFB_kaHtuQtt7ZGkYC2I3WcIe8QZupa9yyjtcorIblDvtYla67QLP_3IIRmC9G8sMT03DJz1n9oS9_3REIn1CXqnftHBgrP4s1QCheWhFDYQfZ1WHZS7KRpmaapw-B0tEkJnJj82N8BLmI5KsgK_tuTmbLUody6_1D8pj3UBhwvYHvXY9CBp0ylNWt_DhCci2bfiQVYpbcZ3vkBXHvpo8JhGTnTMKzae20duva3tbuCPLkiA";
-
-const PET_IMG =
-  "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80";
-
-// ── Shared Icon ──────────────────────────────────────────────────────────────
 const Icon = ({ name, size = 20, fill = 0, className = "" }) => (
-  <span
-    className={`material-symbols-outlined leading-none ${className}`}
-    style={{ fontSize: size, fontVariationSettings: `'FILL' ${fill}` }}
-  >
-    {name}
-  </span>
+  <span className={`material-symbols-outlined leading-none ${className}`} style={{ fontSize: size, fontVariationSettings: `'FILL' ${fill}` }}>{name}</span>
 );
 
-// ── Field wrapper ────────────────────────────────────────────────────────────
 const Field = ({ label, children }) => (
   <div>
-    <label className="block text-[10px] font-bold text-[#2c6370] uppercase tracking-widest mb-1.5">
-      {label}
-    </label>
+    <label className="block text-[10px] font-bold text-[#2c6370] uppercase tracking-widest mb-1.5">{label}</label>
     {children}
   </div>
 );
 
-const inputCls =
-  "w-full bg-[#adecff] border-none rounded-lg px-4 py-4  text-sm text-[#00343e] outline-none focus:ring-2 focus:ring-[#00656f]/40 transition-all placeholder:text-[#2c6370]/50";
+const inputCls = "w-full bg-[#adecff] border-none rounded-lg px-4 py-4  text-sm text-[#00343e] outline-none focus:ring-2 focus:ring-[#00656f]/40 transition-all placeholder:text-[#2c6370]/50";
 
-// ── Main Page ────────────────────────────────────────────────────────────────
 export default function AddPets({ initialData, onSubmit, onCancel, isEditMode }) {
+  const { user } = useAuth();
   const [name, setName] = useState(initialData?.name || "");
-  const [animalType, setAnimalType] = useState(
-    initialData?.species === 1 ? "Cat" :
-      initialData?.species === 2 ? "Bird" :
-        initialData?.species === 3 ? "Rabbit" : "Dog"
-  );
+  const [animalType, setAnimalType] = useState(initialData?.species === 1 ? "Cat" : initialData?.species === 2 ? "Bird" : initialData?.species === 3 ? "Rabbit" : "Dog");
   const [breed, setBreed] = useState(initialData?.breed || "");
   const [age, setAge] = useState(initialData?.age || "");
   const [ageUnit, setAgeUnit] = useState(initialData?.ageUnit === 0 ? "Months" : "Years");
   const [gender, setGender] = useState(initialData?.gender === 1 ? "female" : "male");
   const [images, setImages] = useState(initialData?.imageUrls ? initialData.imageUrls.split('|') : []);
   const [newImageUrl, setNewImageUrl] = useState("");
-
-  // UI Only State (Not mapped to current backend)
   const [description, setDescription] = useState(initialData?.description || "");
   const [location, setLocation] = useState(initialData?.location || "");
   const [health, setHealth] = useState(initialData?.healthStatus ? initialData.healthStatus.split(', ') : ["Vaccinated", "Neutered"]);
 
-  const toggleHealth = (tag) =>
-    setHealth((h) => (h.includes(tag) ? h.filter((x) => x !== tag) : [...h, tag]));
-
-  const handleAddImage = () => {
-    if (newImageUrl && !images.includes(newImageUrl)) {
-      setImages([...images, newImageUrl]);
-      setNewImageUrl("");
-    }
-  };
-
-  const handleRemoveImage = (index) => {
-    setImages(images.filter((_, i) => i !== index));
-  };
+  const toggleHealth = (tag) => setHealth((h) => (h.includes(tag) ? h.filter((x) => x !== tag) : [...h, tag]));
+  const handleAddImage = () => { if (newImageUrl && !images.includes(newImageUrl)) { setImages([...images, newImageUrl]); setNewImageUrl(""); } };
+  const handleRemoveImage = (index) => { setImages(images.filter((_, i) => i !== index)); };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Map to backend Species enum
-    let speciesEnum = 0; // Dog
+    let speciesEnum = 0;
     if (animalType === "Cat") speciesEnum = 1;
     if (animalType === "Bird") speciesEnum = 2;
     if (animalType === "Rabbit") speciesEnum = 3;
-
-    // Map to backend Gender enum
     const genderEnum = gender === "female" ? 1 : 0;
-
-    // Map to backend AgeUnit enum
     const ageUnitEnum = ageUnit === "Months" ? 0 : 1;
 
     onSubmit({
       id: initialData?.id || 0,
-      ownerId: initialData?.ownerId || 0,
+      ownerId: initialData?.ownerId || user?.id || 0,
       name: name,
       breed: breed,
       age: parseInt(age) || 0,
@@ -94,7 +60,7 @@ export default function AddPets({ initialData, onSubmit, onCancel, isEditMode })
       location: location,
       healthStatus: health.join(', '),
       imageUrls: images.join('|') || PET_IMG,
-      status: initialData?.status !== undefined ? initialData.status : 1 // Default to PendingReview
+      status: initialData?.status !== undefined ? initialData.status : 1
     });
   };
 

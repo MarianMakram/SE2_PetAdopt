@@ -1,9 +1,0 @@
-com/petadopt/petservice/models/Pet.class
-com/petadopt/petservice/services/impl/PetServiceImpl.class
-com/petadopt/petservice/repositories/PetRepository.class
-com/petadopt/petservice/controllers/PetController.class
-com/petadopt/petservice/PetServiceApplication.class
-com/petadopt/petservice/models/enums/PetStatus.class
-com/petadopt/petservice/models/enums/Species.class
-com/petadopt/petservice/services/PetService.class
-com/petadopt/petservice/models/enums/Gender.class

@@ -85,18 +85,18 @@ export default function HomePage() {
               {/* Role-Based Portal Access */}
               {user && (
                 <div className="flex flex-wrap gap-3 pt-2">
-                  {user.role === 'Admin' ? (
+                  {user.role?.toUpperCase() === 'ADMIN' ? (
                     <>
                       <button onClick={() => navigate('/admin/pets')} className="px-6 py-3 bg-[#00656f] text-white rounded-full font-bold text-sm shadow-lg hover:shadow-xl transition-all">Pet Approvals</button>
                       <button onClick={() => navigate('/admin/users')} className="px-6 py-3 bg-[#ffc4b3] text-[#9b3e20] rounded-full font-bold text-sm shadow-lg hover:shadow-xl transition-all">User Approvals</button>
                     </>
-                  ) : user.role === 'Shelter' ? (
+                  ) : user.role?.toUpperCase() === 'SHELTER' ? (
                     <>
                       <button onClick={() => navigate('/shelter/pets')} className="px-6 py-3 bg-[#00656f] text-white rounded-full font-bold text-sm shadow-lg hover:shadow-xl transition-all">Dashboard</button>
                       <button onClick={() => navigate('/shelter/pets#pets-grid')} className="px-6 py-3 bg-[#89e9f6] text-[#00555d] rounded-full font-bold text-sm shadow-lg hover:shadow-xl transition-all">My Pets</button>
                       <button onClick={() => navigate('/shelter/requests')} className="px-6 py-3 bg-[#ffc4b3] text-[#9b3e20] rounded-full font-bold text-sm shadow-lg hover:shadow-xl transition-all">Requests</button>
                     </>
-                  ) : user.role === 'Adopter' ? (
+                  ) : user.role?.toUpperCase() === 'ADOPTER' ? (
                     <>
                       <button onClick={() => navigate('/my-requests')} className="px-6 py-3 bg-[#ffc4b3] text-[#9b3e20] rounded-full font-bold text-sm shadow-lg hover:shadow-xl transition-all">My Applications</button>
                       <button onClick={() => navigate('/favorites')} className="px-6 py-3 bg-[#89e9f6] text-[#00555d] rounded-full font-bold text-sm shadow-lg hover:shadow-xl transition-all">Favorites</button>

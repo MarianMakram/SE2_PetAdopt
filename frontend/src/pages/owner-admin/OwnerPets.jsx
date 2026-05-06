@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import Sidebar from '../../components/owner-admin/Sidebar';
 import Header from '../../components/owner-admin/Header';
 import DashboardStats from '../../components/owner-admin/DashboardStats';
@@ -9,6 +10,7 @@ import BottomNav from '../../components/owner-admin/BottomNav';
 import apiClient from '../../services/apiClient';
 
 export default function OwnerPets() {
+  const { user } = useAuth();
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,8 +37,10 @@ export default function OwnerPets() {
   useEffect(() => {
     const fetchPets = async () => {
       try {
-        console.log("Fetching pets from /pets...");
-        const response = await apiClient.get('/pets');
+        console.log("Fetching pets for owner:", user?.id);
+        const response = await apiClient.get('/pets', { 
+          params: { ownerId: user?.id } 
+        });
         const petList = response.data?.data || response.data || [];
 
         console.log("Raw pet list from API:", petList);
@@ -92,7 +96,7 @@ export default function OwnerPets() {
     };
 
     fetchPets();
-  }, []);
+  }, [user]);
 
   const filteredPets = pets.filter(p => {
     if (activeFilter === 'Total') return true;
