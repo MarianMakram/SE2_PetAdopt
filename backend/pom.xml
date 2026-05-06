@@ -30,6 +30,8 @@
 		<module>eureka-server</module>
 		<module>api-gateway</module>
         <module>authservice</module>
+        <module>adoption-service</module>
+        <module>interaction-service</module>
 	</modules>
 
 	<dependencyManagement>

@@ -20,4 +20,17 @@ public class GlobalExceptionHandler {
         return errorMap;
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    public Map<String, String> handleRuntimeException(RuntimeException e) {
+        Map<String, String> errorMap = new HashMap<>();
+        errorMap.put("message", e.getMessage());
+        return errorMap;
+    }
+
+    @ExceptionHandler(Exception.class)
+    public Map<String, String> handleException(Exception e) {
+        Map<String, String> errorMap = new HashMap<>();
+        errorMap.put("message", "An unexpected error occurred: " + e.getMessage());
+        return errorMap;
+    }
 }

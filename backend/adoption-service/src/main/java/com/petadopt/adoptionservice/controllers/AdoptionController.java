@@ -25,6 +25,11 @@ public class AdoptionController {
     public ResponseEntity<List<Adoption>> getUserRequests(@PathVariable int adopterId) {
         return ResponseEntity.ok(adoptionService.getUserRequests(adopterId));
     }
+    
+    @GetMapping("/owner/{ownerId}")
+    public ResponseEntity<List<Adoption>> getOwnerRequests(@PathVariable int ownerId) {
+        return ResponseEntity.ok(adoptionService.getRequestsByOwner(ownerId));
+    }
 
 
     @PutMapping("/{id}/approve")

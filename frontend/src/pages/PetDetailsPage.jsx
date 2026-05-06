@@ -127,7 +127,7 @@ export default function PetDetailsPage() {
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#e9f9ff]">Loading...</div>;
   if (!pet) return <div className="min-h-screen flex items-center justify-center bg-[#e9f9ff]">Pet not found</div>;
 
-  const images = pet.imageUrls ? pet.imageUrls.split(',') : ["https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80"];
+  const images = pet.imageUrls ? pet.imageUrls.split('|') : ["https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80"];
 
   return (
     <div className="w-full bg-[#e9f9ff] text-[#00343e] min-h-screen font-body flex flex-col">

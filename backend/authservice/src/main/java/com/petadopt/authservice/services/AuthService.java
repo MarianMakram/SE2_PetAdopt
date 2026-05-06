@@ -64,4 +64,15 @@ public class AuthService {
                 .userId(user.getId()).email(user.getEmail()).firstName(user.getFirstName()).lastName(user.getLastName()).role(user.getRole())
                 .build();
     }
+
+    public AuthResponse getMe(String email){
+        User user = userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("User not found"));
+        return AuthResponse.builder()
+                .userId(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .role(user.getRole())
+                .build();
+    }
 }

@@ -1,0 +1,10 @@
+/Users/apple/SE2_PetAdopt/backend/adoption-service/src/main/java/com/petadopt/adoptionservice/AdoptionServiceApplication.java
+/Users/apple/SE2_PetAdopt/backend/adoption-service/src/main/java/com/petadopt/adoptionservice/client/PetServiceClient.java
+/Users/apple/SE2_PetAdopt/backend/adoption-service/src/main/java/com/petadopt/adoptionservice/services/AdoptionService.java
+/Users/apple/SE2_PetAdopt/backend/adoption-service/src/main/java/com/petadopt/adoptionservice/controllers/AdoptionController.java
+/Users/apple/SE2_PetAdopt/backend/adoption-service/src/main/java/com/petadopt/adoptionservice/models/Adoption.java
+/Users/apple/SE2_PetAdopt/backend/adoption-service/src/main/java/com/petadopt/adoptionservice/models/enums/RequestStatus.java
+/Users/apple/SE2_PetAdopt/backend/adoption-service/src/main/java/com/petadopt/adoptionservice/repositories/AdoptionRepository.java
+/Users/apple/SE2_PetAdopt/backend/adoption-service/src/main/java/com/petadopt/adoptionservice/models/User.java
+/Users/apple/SE2_PetAdopt/backend/adoption-service/src/main/java/com/petadopt/adoptionservice/models/Pet.java
+/Users/apple/SE2_PetAdopt/backend/adoption-service/src/main/java/com/petadopt/adoptionservice/services/impl/AdoptionServiceImpl.java

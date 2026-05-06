@@ -1,0 +1,13 @@
+com/petadopt/adoptionservice/controllers/AdoptionController.class
+com/petadopt/adoptionservice/models/enums/RequestStatus.class
+com/petadopt/adoptionservice/services/AdoptionService.class
+com/petadopt/adoptionservice/models/Pet.class
+com/petadopt/adoptionservice/models/Adoption$AdoptionBuilder.class
+com/petadopt/adoptionservice/services/impl/AdoptionServiceImpl.class
+com/petadopt/adoptionservice/models/Pet$PetBuilder.class
+com/petadopt/adoptionservice/models/Adoption.class
+com/petadopt/adoptionservice/repositories/AdoptionRepository.class
+com/petadopt/adoptionservice/models/User$UserBuilder.class
+com/petadopt/adoptionservice/client/PetServiceClient.class
+com/petadopt/adoptionservice/models/User.class
+com/petadopt/adoptionservice/AdoptionServiceApplication.class

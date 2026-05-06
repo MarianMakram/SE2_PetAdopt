@@ -44,7 +44,7 @@ export default function AddPets({ initialData, onSubmit, onCancel, isEditMode })
   const [age, setAge] = useState(initialData?.age || "");
   const [ageUnit, setAgeUnit] = useState(initialData?.ageUnit === 0 ? "Months" : "Years");
   const [gender, setGender] = useState(initialData?.gender === 1 ? "female" : "male");
-  const [images, setImages] = useState(initialData?.imageUrls ? initialData.imageUrls.split(',') : []);
+  const [images, setImages] = useState(initialData?.imageUrls ? initialData.imageUrls.split('|') : []);
   const [newImageUrl, setNewImageUrl] = useState("");
 
   // UI Only State (Not mapped to current backend)
@@ -93,7 +93,7 @@ export default function AddPets({ initialData, onSubmit, onCancel, isEditMode })
       description: description,
       location: location,
       healthStatus: health.join(', '),
-      imageUrls: images.join(',') || PET_IMG,
+      imageUrls: images.join('|') || PET_IMG,
       status: initialData?.status !== undefined ? initialData.status : 1 // Default to PendingReview
     });
   };
@@ -154,7 +154,7 @@ export default function AddPets({ initialData, onSubmit, onCancel, isEditMode })
                 </p>
 
                 <Field label="Image URL">
-                  <div className="flex gap-2 mb-4">
+                  <div className="flex gap-2 mb-2">
                     <input
                       className={`${inputCls}`}
                       placeholder="https://..."
@@ -173,8 +173,38 @@ export default function AddPets({ initialData, onSubmit, onCancel, isEditMode })
                       onClick={handleAddImage}
                       className="px-4 py-2 rounded-xl border border-[#00656f] text-[#00656f] font-bold text-xs hover:bg-[#00656f]/5 transition-colors whitespace-nowrap"
                     >
-                      Add Image
+                      Add URL
                     </button>
+                  </div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="h-[1px] flex-1 bg-[#81b5c5]/20"></div>
+                    <span className="text-[10px] font-bold text-[#2c6370]/50">OR</span>
+                    <div className="h-[1px] flex-1 bg-[#81b5c5]/20"></div>
+                  </div>
+                  <div className="mb-4">
+                    <input
+                      type="file"
+                      id="pet-image-upload"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setImages([...images, reader.result]);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor="pet-image-upload"
+                      className="flex items-center justify-center gap-2 w-full py-4 rounded-xl border-2 border-dashed border-[#00656f]/30 text-[#00656f] font-bold text-sm hover:bg-[#00656f]/5 cursor-pointer transition-all active:scale-95"
+                    >
+                      <Icon name="upload" size={18} />
+                      Upload from Computer
+                    </label>
                   </div>
                 </Field>
 

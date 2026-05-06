@@ -6,11 +6,29 @@ spring:
     name: api-gateway
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
       routes:
         - id: pet-service
           uri: lb://pet-service
           predicates:
             - Path=/api/pets/**
+        - id: auth-service
+          uri: lb://authservice
+          predicates:
+            - Path=/api/auth/**
+        - id: adoption-service
+          uri: lb://adoption-service
+          predicates:
+            - Path=/api/adoption-requests/**
+        - id: interaction-service
+          uri: lb://interaction-service
+          predicates:
+            - Path=/api/favorites/**, /api/reviews/**, /api/notifications/**
 
 eureka:
   client:

@@ -43,8 +43,8 @@ The gateway uses Spring Cloud + Eureka for service discovery and routes requests
 | API Gateway         | Dev 1       | `origin/dev1`         | 8080  | Single entry point, routing, CORS, token fwd  |
 | Auth Service        | Dev 2       | `origin/feat/Dev2`    | 8082  | JWT auth, registration, RBAC                  |
 | Pet Service         | Dev 3       | `origin/Dev3`         | 8081  | Pet CRUD, filtering, AOP logging              |
-| Adoption Service    | Dev 4       | `origin/adoption-service` | TBD | Adoption applications, status transitions     |
-| Interaction Service | Dev 5       | `origin/Dev5`         | TBD   | Favorites, reviews, notifications             |
+| Adoption Service    | Dev 4       | `origin/adoption-service` | 8083  | Adoption applications, status transitions     |
+| Interaction Service | Dev 5       | `origin/Dev5`         | 8084  | Favorites, reviews, notifications             |
 | Frontend (React)    | Dev 6       | `origin/testing`      | 5173  | UI — connects to API Gateway only             |
 | Docker / Infra      | Dev 1       | `origin/dev1`         | —     | docker-compose.yml for full stack             |
 
@@ -167,7 +167,7 @@ These are the old .NET-era endpoints currently hardcoded in the frontend:
 - [x] **Update notifications API calls** — new backend requires `userId` in path
 - [x] **Update adoption requests** — new backend uses `user/{adopterId}` path instead of JWT-inferred
 - [x] **Handle new error response format** — Spring Boot returns `{ timestamp, status, error, message, path }` vs old backend's flat strings
-- [ ] **Test JWT flow end-to-end** — registration → login → token storage → protected requests
+- [x] **Test JWT flow end-to-end** — registration → login → token storage → protected requests
 - [x] **Remove `@microsoft/signalr` dependency** (not needed for Spring Boot backend)
 - [x] **Remove `signalRService.js`** (deprecated)
 
@@ -228,6 +228,5 @@ cd backend/pet-service
 ## 10. Notes
 
 - The frontend was originally built for a **.NET backend** (port 5251). The migration to Spring Boot microservices (port 8080) is in progress.
-- SignalR (used for real-time notifications) is a **.NET technology**. The Spring Boot backend does not support it. Notifications will need to use REST polling or WebSocket (STOMP) instead.
-- The frontend uses **Tailwind CSS via CDN** (not installed via npm). The Tailwind config is embedded directly in `index.html`.
-- The API Gateway currently only has a route for `/api/pets/**`. Routes for auth, adoption, and interaction services need to be added by Dev 1.
+- SignalR (used for real-time notifications) has been **removed** and replaced with REST polling.
+- The API Gateway now has routes for all microservices: `/api/pets/**`, `/api/auth/**`, `/api/adoption-requests/**`, `/api/favorites/**`, `/api/reviews/**`, and `/api/notifications/**`.

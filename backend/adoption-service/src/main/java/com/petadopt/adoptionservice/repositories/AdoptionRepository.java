@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface AdoptionRepository extends JpaRepository<Adoption, Integer> {
     List<Adoption> findByAdopterId(int adopterId);
+    List<Adoption> findByOwnerId(int ownerId);
 }

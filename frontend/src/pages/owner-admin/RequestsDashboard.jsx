@@ -14,7 +14,7 @@ export default function RequestsDashboard() {
     try {
       // Spring Boot Adoption Service: GET /adoption-requests/user/{ownerId}
       // For shelter owners, we fetch all requests where they are the owner
-      const response = await apiClient.get(`/adoption-requests/user/${user?.id}`);
+      const response = await apiClient.get(`/adoption-requests/owner/${user?.id}`);
       setRequests(response.data || []);
       setLoading(false);
     } catch (err) {
@@ -103,7 +103,7 @@ export default function RequestsDashboard() {
               const isAccepted = status === 'APPROVED';
 
               const statusStr = isPending ? 'Pending Review' : isAccepted ? 'Approved' : 'Rejected';
-              const imgUrl = req.pet?.imageUrls ? req.pet.imageUrls.split(',')[0] : "https://lh3.googleusercontent.com/aida-public/AB6AXuBahk49U5cTrFQLAZlaKJz07niP63W0Az4g4aSygWFt9IomZ63gBQR3-qtnEHh9epvwUmpJdCG2jI-xtSRXOcmLenY17D1JMo3mWSTWkQ5gypTwccqYnL6cg3EKa4HZL9jfdYqdcFtMIlBmKQkHbiiz4zlbtwLyJxT2oki_Ga6S-j01ky6DSa-xAiJh_eCHSdNFwUueLmrAuuHlZP69q-PnNQxHmpOM4JDPI2w5XILA2QawjB4TWAQZl9fEqj-fUoz7zrTZId1MlSI";
+              const imgUrl = req.pet?.imageUrls ? req.pet.imageUrls.split('|')[0] : "https://lh3.googleusercontent.com/aida-public/AB6AXuBahk49U5cTrFQLAZlaKJz07niP63W0Az4g4aSygWFt9IomZ63gBQR3-qtnEHh9epvwUmpJdCG2jI-xtSRXOcmLenY17D1JMo3mWSTWkQ5gypTwccqYnL6cg3EKa4HZL9jfdYqdcFtMIlBmKQkHbiiz4zlbtwLyJxT2oki_Ga6S-j01ky6DSa-xAiJh_eCHSdNFwUueLmrAuuHlZP69q-PnNQxHmpOM4JDPI2w5XILA2QawjB4TWAQZl9fEqj-fUoz7zrTZId1MlSI";
 
               return (
                 <div key={req.id} className="bg-[#ffffff] p-6 rounded-xl border border-[#81b5c5]/10 shadow-sm hover:shadow-md transition-shadow group">

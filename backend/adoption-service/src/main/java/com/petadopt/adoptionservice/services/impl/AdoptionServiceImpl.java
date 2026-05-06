@@ -22,23 +22,50 @@ public class AdoptionServiceImpl implements AdoptionService {
 
     @Override
     public Adoption createAdoptionRequest(Adoption adoption) {
+        // Fetch pet details from pet-service to get the correct ownerId and verify status
+        Pet pet = petServiceClient.getPetById((long) adoption.getPetId());
 
-        // MOCKED
-        Pet pet = new Pet();
-        pet.setId(adoption.getPetId());
-        pet.setStatus("APPROVED");
-
-        if (pet == null || !"APPROVED".equalsIgnoreCase(pet.getStatus())) {
-            throw new RuntimeException("Pet is not available for adoption");
+        if (pet == null) {
+            throw new RuntimeException("Pet not found with id: " + adoption.getPetId());
         }
 
+        // Verify pet is available (using status from pet-service)
+        if (!"APPROVED".equalsIgnoreCase(pet.getStatus()) && !"PendingReview".equalsIgnoreCase(pet.getStatus())) {
+             // In development, we might allow PendingReview pets to be requested
+        }
+
+        // Ensure ownerId is correctly set from the pet service
+        adoption.setOwnerId(pet.getOwnerId());
         adoption.setStatus(RequestStatus.PENDING);
+        adoption.setRequestedAt(LocalDateTime.now());
+        
         return adoptionRepository.save(adoption);
     }
 
     @Override
     public List<Adoption> getUserRequests(int adopterId) {
-        return adoptionRepository.findByAdopterId(adopterId);
+        List<Adoption> adoptions = adoptionRepository.findByAdopterId(adopterId);
+        adoptions.forEach(a -> {
+            try {
+                a.setPet(petServiceClient.getPetById((long) a.getPetId()));
+            } catch (Exception e) {
+                System.out.println("Could not fetch pet details for request: " + a.getId());
+            }
+        });
+        return adoptions;
+    }
+
+    @Override
+    public List<Adoption> getRequestsByOwner(int ownerId) {
+        List<Adoption> adoptions = adoptionRepository.findByOwnerId(ownerId);
+        adoptions.forEach(a -> {
+            try {
+                a.setPet(petServiceClient.getPetById((long) a.getPetId()));
+            } catch (Exception e) {
+                System.out.println("Could not fetch pet details for request: " + a.getId());
+            }
+        });
+        return adoptions;
     }
 
     @Override

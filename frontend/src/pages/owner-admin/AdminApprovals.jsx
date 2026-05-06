@@ -29,7 +29,7 @@ export default function AdminApprovals() {
         submitter: `Shelter ID: ${pet.ownerId}`,
         submitterType: 'Verified Shelter',
         dateSubmitted: new Date(pet.createdAt).toLocaleDateString(),
-        imageUrl: pet.imageUrls ? pet.imageUrls.split(',')[0] : 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80',
+        imageUrl: pet.imageUrls ? pet.imageUrls.split('|')[0] : 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80',
         badgeColor: pet.status === "PENDING_REVIEW" ? 'primary' : pet.status === "APPROVED" ? 'success' : 'error',
         status: pet.status
       }));

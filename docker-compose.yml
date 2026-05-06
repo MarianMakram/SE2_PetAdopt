@@ -60,6 +60,61 @@ services:
     networks:
       - petadopt-network
 
+  auth-service:
+    build: ./backend/authservice
+    container_name: auth-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/petdb
+      - SPRING_DATASOURCE_USERNAME=odoo
+      - SPRING_DATASOURCE_PASSWORD=odoo
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+    networks:
+      - petadopt-network
+
+  adoption-service:
+    build: ./backend/adoption-service
+    container_name: adoption-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/petdb
+      - SPRING_DATASOURCE_USERNAME=odoo
+      - SPRING_DATASOURCE_PASSWORD=odoo
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - PET_SERVICE_URL=http://pet-service:8081
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+    networks:
+      - petadopt-network
+
+  interaction-service:
+    build: ./backend/interaction-service
+    container_name: interaction-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/petdb
+      - SPRING_DATASOURCE_USERNAME=odoo
+      - SPRING_DATASOURCE_PASSWORD=odoo
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+    networks:
+      - petadopt-network
+
 networks:
   petadopt-network:
     driver: bridge

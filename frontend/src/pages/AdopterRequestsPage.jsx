@@ -153,7 +153,7 @@ export default function AdopterRequestsPage() {
             ) : (
               filteredRequests.map((req) => {
                 const pet = req.pet;
-                const imgUrl = pet?.imageUrls ? pet.imageUrls.split(',')[0] : "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80";
+                const imgUrl = pet?.imageUrls ? pet.imageUrls.split('|')[0] : "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80";
 
                 let badgeClass = "bg-surface-container-high text-on-surface border-outline-variant/30";
                 let badgeText = "Pending";
