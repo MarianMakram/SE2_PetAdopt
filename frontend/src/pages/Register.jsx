@@ -123,9 +123,11 @@ export default function PetAdoptRegister() {
     const city = locParts[0] || "";
     const country = locParts[1] || "";
 
+    // Spring Boot RegisterRequest: single endpoint, role in body
     const payload = {
       email: form.email,
       password: form.password,
+      role: role === "shelter" ? "SHELTER" : "ADOPTER",
       firstName,
       lastName,
       phone: form.phone,
@@ -133,11 +135,9 @@ export default function PetAdoptRegister() {
       country,
     };
 
-    const endpoint = role === "shelter" ? "/auth/register/shelter" : "/auth/register";
-
     try {
       setLoading(true);
-      await apiClient.post(endpoint, payload);
+      await apiClient.post('/auth/register', payload);
 
       showSnack(
         role === "shelter"
@@ -147,7 +147,9 @@ export default function PetAdoptRegister() {
       );
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      showSnack(err.response?.data || "Registration failed. Please try again.", "error");
+      // Spring Boot returns { message } in error responses
+      const errMsg = err.response?.data?.message || err.response?.data || "Registration failed. Please try again.";
+      showSnack(errMsg, "error");
     } finally {
       setLoading(false);
       setForm(prev => ({ ...prev, password: "" }));

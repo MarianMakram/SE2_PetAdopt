@@ -14,19 +14,48 @@ export const AuthProvider = ({ children }) => {
   });
   const [isLoading, setIsLoading] = useState(true);
 
+  // Validate session on mount by calling /auth/me
+  // If the endpoint doesn't exist yet, fall back to the stored user
   const validateSession = useCallback(async () => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      setUser(null);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const response = await apiClient.get('/auth/me');
-      const userData = response.data?.data || response.data;
+      // Spring Boot returns the user data directly (no wrapper)
+      const userData = response.data;
       if (userData) {
-        setUser(userData);
+        // Normalize the user object shape for the frontend
+        const normalizedUser = {
+          id: userData.userId || userData.id,
+          email: userData.email,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          role: userData.role, // ADMIN, SHELTER, or ADOPTER
+          phone: userData.phone,
+          city: userData.city,
+          country: userData.country,
+        };
+        setUser(normalizedUser);
+        localStorage.setItem('user', JSON.stringify(normalizedUser));
       }
     } catch (err) {
       console.warn("Session validation failed:", err.message);
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-      setUser(null);
+      // If /auth/me returns 404 (not implemented yet), keep stored user
+      if (err.response?.status === 404) {
+        // Endpoint not available — keep existing user from localStorage
+        console.info("Auth /me endpoint not available, using cached user data.");
+      } else {
+        // Token is truly invalid — clear everything
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        setUser(null);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -36,26 +65,41 @@ export const AuthProvider = ({ children }) => {
     validateSession();
   }, [validateSession]);
 
+  // Login — calls POST /auth/login and stores the JWT + user info
   const login = async (email, password) => {
     const response = await apiClient.post('/auth/login', { email, password });
-    // Handle both wrapped { data: { ... } } and direct { ... } responses
-    const data = response.data?.data || response.data;
-    const { accessToken, refreshToken, user: userData } = data;
-    
+    // Spring Boot AuthResponse: { accessToken, refreshToken, userId, email, firstName, lastName, role }
+    const data = response.data;
+
+    const { accessToken, refreshToken } = data;
+
+    // Build a user object from the AuthResponse fields
+    const userData = {
+      id: data.userId,
+      email: data.email,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      role: data.role, // ADMIN, SHELTER, or ADOPTER
+    };
+
     localStorage.setItem('accessToken', accessToken);
     if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('user', JSON.stringify(userData));
-    
+
     setUser(userData);
     return userData;
   };
 
+  // Logout — clears tokens and user state
   const logout = async () => {
     try {
       const refreshToken = localStorage.getItem('refreshToken');
-      await apiClient.post('/auth/logout', { refreshToken });
+      if (refreshToken) {
+        await apiClient.post('/auth/logout', { refreshToken });
+      }
     } catch (err) {
-      console.error("Logout API failed", err);
+      // Logout API may not exist — that's okay, we clear locally regardless
+      console.warn("Logout API call failed (may not be implemented):", err.message);
     } finally {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');

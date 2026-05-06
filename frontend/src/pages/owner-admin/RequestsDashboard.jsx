@@ -2,16 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from '../../components/owner-admin/Sidebar';
 import apiClient from '../../services/apiClient';
+import { useAuth } from '../../context/AuthContext';
 
 export default function RequestsDashboard() {
+  const { user } = useAuth();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("Pending"); // "Pending", "Accepted", "Rejected"
+  const [filter, setFilter] = useState("PENDING"); // PENDING, APPROVED, REJECTED
 
   const fetchRequests = async () => {
     try {
-      const data = await apiClient.get('/shelter/requests');
-      setRequests(data.data || data);
+      // Spring Boot Adoption Service: GET /adoption-requests/user/{ownerId}
+      // For shelter owners, we fetch all requests where they are the owner
+      const response = await apiClient.get(`/adoption-requests/user/${user?.id}`);
+      setRequests(response.data || []);
       setLoading(false);
     } catch (err) {
       console.error("Error fetching requests:", err);
@@ -20,22 +24,26 @@ export default function RequestsDashboard() {
   };
 
   useEffect(() => {
-    fetchRequests();
-  }, []);
+    if (user?.id) fetchRequests();
+  }, [user]);
 
+  // Approve an adoption request
+  // Spring Boot: PUT /adoption-requests/{id}/approve
   const handleAccept = async (id) => {
     try {
-      await apiClient.patch(`/shelter/requests/${id}/accept`);
+      await apiClient.put(`/adoption-requests/${id}/approve`);
       fetchRequests();
     } catch (err) {
       console.error("Error accepting:", err);
     }
   };
 
+  // Reject an adoption request
+  // Spring Boot: PUT /adoption-requests/{id}/reject?reason=...
   const handleReject = async (id) => {
     try {
-      await apiClient.patch(`/shelter/requests/${id}/reject`, {
-        reason: "Not a good fit at this time."
+      await apiClient.put(`/adoption-requests/${id}/reject`, null, {
+        params: { reason: "Not a good fit at this time." }
       });
       fetchRequests();
     } catch (err) {
@@ -43,10 +51,12 @@ export default function RequestsDashboard() {
     }
   };
 
+  // Filter by Spring Boot RequestStatus enum (PENDING, APPROVED, REJECTED)
   const filteredRequests = requests.filter(r => {
-    if (filter === "Pending") return r.status === 0 || r.status === "Pending";
-    if (filter === "Accepted") return r.status === 1 || r.status === "Accepted";
-    if (filter === "Rejected") return r.status === 2 || r.status === "Rejected";
+    const status = String(r.status).toUpperCase();
+    if (filter === "PENDING") return status === "PENDING";
+    if (filter === "APPROVED") return status === "APPROVED";
+    if (filter === "REJECTED") return status === "REJECTED";
     return false;
   });
 
@@ -67,13 +77,13 @@ export default function RequestsDashboard() {
               </p>
             </div>
             <div className="flex bg-white/50 backdrop-blur-md rounded-full p-1 border border-cyan-200/30">
-              {['Pending', 'Accepted', 'Rejected'].map(t => (
+              {['PENDING', 'APPROVED', 'REJECTED'].map(t => (
                 <button
                   key={t}
                   onClick={() => setFilter(t)}
                   className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${filter === t ? 'bg-cyan-600 text-white shadow-md' : 'text-cyan-600 hover:bg-cyan-100'}`}
                 >
-                  {t}
+                  {t.charAt(0) + t.slice(1).toLowerCase()}
                 </button>
               ))}
             </div>
@@ -84,14 +94,15 @@ export default function RequestsDashboard() {
               const petName = req.pet?.name || 'Unknown Pet';
               const breed = req.pet?.breed || 'Unknown';
               const age = req.pet?.age ? `${req.pet.age} ${req.pet.ageUnit === 0 ? 'Months' : 'Years'}` : '';
-              const adopterName = req.adopter?.name || `User ID: ${req.adopterId}`;
+              const adopterName = req.adopter?.firstName ? `${req.adopter.firstName} ${req.adopter.lastName || ''}` : `User ID: ${req.adopterId}`;
               const date = new Date(req.requestedAt).toLocaleDateString();
               const time = new Date(req.requestedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-              const isPending = req.status === 0 || req.status === "Pending";
-              const isAccepted = req.status === 1 || req.status === "Accepted";
+              const status = String(req.status).toUpperCase();
+              const isPending = status === 'PENDING';
+              const isAccepted = status === 'APPROVED';
 
-              const statusStr = isPending ? 'Pending Review' : isAccepted ? 'Accepted' : 'Rejected';
+              const statusStr = isPending ? 'Pending Review' : isAccepted ? 'Approved' : 'Rejected';
               const imgUrl = req.pet?.imageUrls ? req.pet.imageUrls.split(',')[0] : "https://lh3.googleusercontent.com/aida-public/AB6AXuBahk49U5cTrFQLAZlaKJz07niP63W0Az4g4aSygWFt9IomZ63gBQR3-qtnEHh9epvwUmpJdCG2jI-xtSRXOcmLenY17D1JMo3mWSTWkQ5gypTwccqYnL6cg3EKa4HZL9jfdYqdcFtMIlBmKQkHbiiz4zlbtwLyJxT2oki_Ga6S-j01ky6DSa-xAiJh_eCHSdNFwUueLmrAuuHlZP69q-PnNQxHmpOM4JDPI2w5XILA2QawjB4TWAQZl9fEqj-fUoz7zrTZId1MlSI";
 
               return (

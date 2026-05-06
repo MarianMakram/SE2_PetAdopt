@@ -5,9 +5,10 @@ import Header from '../components/owner-admin/Header';
 import BottomNav from '../components/owner-admin/BottomNav';
 import PullQuote from '../components/owner-admin/PullQuote';
 import apiClient from '../services/apiClient';
-import * as signalR from '@microsoft/signalr';
+import { useAuth } from '../context/AuthContext';
 
 export default function AdopterRequestsPage() {
+  const { user } = useAuth();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('Total');
@@ -28,9 +29,11 @@ export default function AdopterRequestsPage() {
   }, [hash, loading]);
 
   const fetchRequests = async () => {
+    if (!user?.id) return;
     try {
-      const response = await apiClient.get('/adoption-requests');
-      setRequests(response.data);
+      // Spring Boot Adoption Service: GET /adoption-requests/user/{adopterId}
+      const response = await apiClient.get(`/adoption-requests/user/${user.id}`);
+      setRequests(response.data || []);
     } catch (err) {
       if (err.response?.status === 401) {
         window.location.href = "/login";
@@ -43,40 +46,21 @@ export default function AdopterRequestsPage() {
   };
 
   useEffect(() => {
-    fetchRequests();
+    if (user?.id) fetchRequests();
+  }, [user]);
 
-    const connection = new signalR.HubConnectionBuilder()
-      .withUrl("http://localhost:5251/hub/notifications", {
-        accessTokenFactory: () => localStorage.getItem("accessToken")
-      })
-      .withAutomaticReconnect()
-      .build();
-
-    connection.start()
-      .then(() => {
-        connection.on("ReceiveNotification", () => {
-          // Whenever the owner updates the status, the backend sends a notification.
-          // We instantly refetch the data to make it real-time.
-          fetchRequests();
-        });
-      })
-      .catch(e => console.error("SignalR Connection Error: ", e));
-
-    return () => {
-      connection.stop();
-    };
-  }, []);
-
+  // Use Spring Boot RequestStatus enum strings
   const totalCount = requests.length;
-  const pendingCount = requests.filter(r => r.status === 0 || r.status === "Pending").length;
-  const approvedCount = requests.filter(r => r.status === 1 || r.status === "Accepted").length;
-  const rejectedCount = requests.filter(r => r.status === 2 || r.status === "Rejected").length;
+  const pendingCount = requests.filter(r => String(r.status).toUpperCase() === "PENDING").length;
+  const approvedCount = requests.filter(r => String(r.status).toUpperCase() === "APPROVED").length;
+  const rejectedCount = requests.filter(r => String(r.status).toUpperCase() === "REJECTED").length;
 
   const filteredRequests = requests.filter(r => {
+    const status = String(r.status).toUpperCase();
     if (activeFilter === 'Total') return true;
-    if (activeFilter === 'Pending') return r.status === 0 || r.status === "Pending";
-    if (activeFilter === 'Approved') return r.status === 1 || r.status === "Accepted";
-    if (activeFilter === 'Rejected') return r.status === 2 || r.status === "Rejected";
+    if (activeFilter === 'Pending') return status === "PENDING";
+    if (activeFilter === 'Approved') return status === "APPROVED";
+    if (activeFilter === 'Rejected') return status === "REJECTED";
     return true;
   });
 
@@ -173,8 +157,9 @@ export default function AdopterRequestsPage() {
 
                 let badgeClass = "bg-surface-container-high text-on-surface border-outline-variant/30";
                 let badgeText = "Pending";
-                if (req.status === 1 || req.status === "Accepted") { badgeClass = "bg-secondary text-on-secondary border-secondary"; badgeText = "Approved"; }
-                else if (req.status === 2 || req.status === "Rejected") { badgeClass = "bg-red-100 text-red-800 border-red-200"; badgeText = "Rejected"; }
+                const statusUpper = String(req.status).toUpperCase();
+                if (statusUpper === "APPROVED") { badgeClass = "bg-secondary text-on-secondary border-secondary"; badgeText = "Approved"; }
+                else if (statusUpper === "REJECTED") { badgeClass = "bg-red-100 text-red-800 border-red-200"; badgeText = "Rejected"; }
 
                 return (
                   <div key={req.id} className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-outline-variant/15 hover:shadow-md transition-all group flex flex-col">
@@ -200,7 +185,7 @@ export default function AdopterRequestsPage() {
                         <p className="text-on-surface italic line-clamp-2">"{req.message}"</p>
                       </div>
 
-                      {(req.status === 2 || req.status === "Rejected") && req.rejectionReason && (
+                      {(String(req.status).toUpperCase() === "REJECTED") && req.rejectionReason && (
                         <div className="bg-red-50 p-3 rounded-xl mb-4 border border-red-100 text-sm">
                           <p className="font-bold text-red-800 mb-1 text-[11px] uppercase tracking-widest">Feedback</p>
                           <p className="text-red-700">{req.rejectionReason}</p>

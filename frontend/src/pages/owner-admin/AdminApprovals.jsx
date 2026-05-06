@@ -10,7 +10,7 @@ export default function AdminApprovals() {
   const [approvals, setApprovals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('PendingReview');
+  const [filter, setFilter] = useState('PENDING_REVIEW');
 
   useEffect(() => {
     fetchPets();
@@ -19,7 +19,8 @@ export default function AdminApprovals() {
   const fetchPets = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get(`/admin/pets/status/${filter}`);
+      // Spring Boot Pet Service: filter by status via query param
+      const response = await apiClient.get('/pets', { params: { status: filter } });
       const dataArray = response.data || [];
       const mappedData = dataArray.map(pet => ({
         id: pet.id,
@@ -29,7 +30,7 @@ export default function AdminApprovals() {
         submitterType: 'Verified Shelter',
         dateSubmitted: new Date(pet.createdAt).toLocaleDateString(),
         imageUrl: pet.imageUrls ? pet.imageUrls.split(',')[0] : 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80',
-        badgeColor: pet.status === "PendingReview" ? 'primary' : pet.status === "Approved" ? 'success' : 'error',
+        badgeColor: pet.status === "PENDING_REVIEW" ? 'primary' : pet.status === "APPROVED" ? 'success' : 'error',
         status: pet.status
       }));
       setApprovals(mappedData);
@@ -42,7 +43,8 @@ export default function AdminApprovals() {
 
   const handleApprove = async (id) => {
     try {
-      await apiClient.patch(`/admin/pets/${id}/approve`);
+      // Spring Boot: update pet status via PUT /pets/{id}
+      await apiClient.put(`/pets/${id}`, { status: 'APPROVED' });
       fetchPets();
     } catch (err) {
       alert("Failed to approve pet.");
@@ -52,7 +54,8 @@ export default function AdminApprovals() {
   const handleReject = async (id) => {
     if (window.confirm("Are you sure you want to reject this pet listing?")) {
       try {
-        await apiClient.patch(`/admin/pets/${id}/reject`);
+        // Spring Boot: update pet status via PUT /pets/{id}
+        await apiClient.put(`/pets/${id}`, { status: 'REJECTED' });
         fetchPets();
       } catch (err) {
         alert("Failed to reject pet.");
@@ -69,13 +72,13 @@ export default function AdminApprovals() {
           <div className="flex justify-between items-center mb-8">
             <ApprovalHeader count={approvals.length} />
             <div className="flex bg-white rounded-full p-1 shadow-sm border border-cyan-100">
-              {['PendingReview', 'Approved', 'Rejected'].map(t => (
+              {['PENDING_REVIEW', 'APPROVED', 'REJECTED'].map(t => (
                 <button
                   key={t}
                   onClick={() => setFilter(t)}
                   className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${filter === t ? 'bg-cyan-600 text-white shadow-md' : 'text-cyan-600 hover:bg-cyan-50'}`}
                 >
-                  {t.replace('Review', '')}
+                  {t.replace('_', ' ').replace('PENDING REVIEW', 'Pending')}
                 </button>
               ))}
             </div>

@@ -50,7 +50,8 @@ export default function PetDetailsPage() {
 
   const checkFavorite = async () => {
     try {
-      const response = await apiClient.get(`/favorites`);
+      // Spring Boot: GET /favorites/user/{userId}
+      const response = await apiClient.get(`/favorites/user/${user.id}`);
       const data = response.data;
       if(Array.isArray(data)) {
         setIsFavorite(data.some(f => f.petId === parseInt(id)));
@@ -67,6 +68,8 @@ export default function PetDetailsPage() {
     try {
       await apiClient.post(`/adoption-requests`, {
         petId: parseInt(id),
+        adopterId: user.id,
+        ownerId: pet.ownerId,
         message: adoptMessage,
         whyThisPet: whyThisPet
       });
@@ -88,10 +91,12 @@ export default function PetDetailsPage() {
     if (!user) { navigate('/login'); return; }
     try {
       if (isFavorite) {
-        await apiClient.delete(`/favorites/${id}`);
+        // Spring Boot: DELETE /favorites?userId={userId}&petId={petId}
+        await apiClient.delete('/favorites', { params: { userId: user.id, petId: parseInt(id) } });
         setIsFavorite(false);
       } else {
-        await apiClient.post(`/favorites`, { petId: parseInt(id) });
+        // Spring Boot: POST /favorites { userId, petId }
+        await apiClient.post(`/favorites`, { userId: user.id, petId: parseInt(id) });
         setIsFavorite(true);
       }
     } catch (err) {
@@ -105,6 +110,7 @@ export default function PetDetailsPage() {
     setSubmittingReview(true);
     try {
       const response = await apiClient.post(`/reviews`, { 
+        adopterId: user.id,
         petId: parseInt(id), 
         rating: newReview.rating, 
         comment: newReview.comment 
@@ -112,7 +118,7 @@ export default function PetDetailsPage() {
       setReviews([response.data, ...reviews]);
       setNewReview({ rating: 5, comment: '' });
     } catch (err) {
-      alert(err.response?.data || "Only adopters who adopted this pet can leave a review.");
+      alert(err.response?.data?.message || "Only adopters who adopted this pet can leave a review.");
     } finally {
       setSubmittingReview(false);
     }
@@ -132,7 +138,7 @@ export default function PetDetailsPage() {
           <div className="space-y-6">
             <div className="relative h-[600px] rounded-3xl overflow-hidden shadow-sm">
               <img src={images[0]} alt={pet.name} className="w-full h-full object-cover" />
-              {user?.role !== 'Admin' && user?.role !== 'Shelter' && (
+              {user?.role !== 'Admin' && user?.role !== 'ADMIN' && user?.role !== 'Shelter' && user?.role !== 'SHELTER' && (
                 <button 
                   onClick={toggleFavorite}
                   className="absolute top-6 right-6 w-14 h-14 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[#9f0519] shadow-lg hover:scale-110 transition-transform"
@@ -166,7 +172,7 @@ export default function PetDetailsPage() {
 
             <p className="text-[#2c6370] text-lg leading-relaxed mb-10">{pet.description}</p>
 
-            {user?.role === 'Admin' || user?.role === 'Shelter' ? (
+            {user?.role === 'Admin' || user?.role === 'ADMIN' || user?.role === 'Shelter' || user?.role === 'SHELTER' ? (
               <div className="bg-[#bff0ff]/30 text-[#00656f] px-10 py-5 rounded-full font-bold w-fit border border-[#00656f]/20">
                 Viewing as {user.role}
               </div>
@@ -183,7 +189,7 @@ export default function PetDetailsPage() {
 
         <div className="mt-24 border-t border-[#bff0ff] pt-16 max-w-4xl">
           <h2 className="text-4xl font-headline font-extrabold text-[#00343e] mb-10">Adopter Reviews</h2>
-          {user?.role === 'Adopter' && (
+          {(user?.role === 'Adopter' || user?.role === 'ADOPTER') && (
             <div className="bg-white p-8 rounded-3xl shadow-sm border border-[#bff0ff]/50 mb-12">
               <h3 className="text-xl font-bold mb-4 text-[#00555d]">Leave a Review</h3>
               <form onSubmit={submitReview} className="space-y-4">

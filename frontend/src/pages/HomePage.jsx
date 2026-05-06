@@ -15,19 +15,20 @@ export default function HomePage() {
   const { user } = useAuth();
 
   useEffect(() => {
-    apiClient.get('/pets', { params: { pageSize: 3 } })
+    apiClient.get('/pets')
       .then(response => {
-        const data = response.data?.data || response.data;
+        const data = response.data;
         if (Array.isArray(data)) {
           setFeaturedPets(data.slice(0, 3));
         }
       })
       .catch(err => console.error("Error fetching pets:", err));
 
-    if (user?.role === 'Adopter') {
-      apiClient.get('/favorites')
+    if (user?.role === 'Adopter' || user?.role === 'ADOPTER') {
+      // Spring Boot: GET /favorites/user/{userId}
+      apiClient.get(`/favorites/user/${user.id}`)
         .then(response => {
-          setFavoriteIds(response.data.map(f => f.petId));
+          setFavoriteIds((response.data || []).map(f => f.petId));
         })
         .catch(err => console.error("Error fetching favorites:", err));
     }
@@ -38,15 +39,17 @@ export default function HomePage() {
       navigate('/login');
       return;
     }
-    if (user.role !== 'Adopter') return;
+    if (user.role !== 'Adopter' && user.role !== 'ADOPTER') return;
 
     const isFav = favoriteIds.includes(petId);
     try {
       if (isFav) {
-        await apiClient.delete(`/favorites/${petId}`);
+        // Spring Boot: DELETE /favorites?userId={userId}&petId={petId}
+        await apiClient.delete('/favorites', { params: { userId: user.id, petId } });
         setFavoriteIds(favoriteIds.filter(id => id !== petId));
       } else {
-        await apiClient.post('/favorites', { petId });
+        // Spring Boot: POST /favorites { userId, petId }
+        await apiClient.post('/favorites', { userId: user.id, petId });
         setFavoriteIds([...favoriteIds, petId]);
       }
     } catch (err) {
@@ -178,7 +181,7 @@ export default function HomePage() {
                   <div className={`group ${idx === 1 ? 'mt-8' : ''}`} key={pet.id}>
                     <div className="relative overflow-hidden rounded-t-xl rounded-b-md">
                       <img className="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110" src={imgUrl} alt={pet.name} />
-                      {user?.role !== 'Admin' && user?.role !== 'Shelter' && (
+                      {user?.role !== 'Admin' && user?.role !== 'ADMIN' && user?.role !== 'Shelter' && user?.role !== 'SHELTER' && (
                         <button
                           onClick={() => toggleFavorite(pet.id)}
                           className="absolute top-4 right-4 w-12 h-12 bg-[#ffffff]/80 backdrop-blur-md rounded-full flex items-center justify-center text-[#9b3e20] shadow-lg hover:scale-110 active:scale-95 transition-all"

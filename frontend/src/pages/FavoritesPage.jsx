@@ -1,24 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient from '../services/apiClient';
+import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/owner-admin/Sidebar';
 import Header from '../components/owner-admin/Header';
 import BottomNav from '../components/owner-admin/BottomNav';
 
 export default function FavoritesPage() {
+  const { user } = useAuth();
   const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
-    apiClient.get('/favorites')
+    if (!user?.id) return;
+    // Spring Boot: GET /favorites/user/{userId}
+    apiClient.get(`/favorites/user/${user.id}`)
       .then(response => {
         setFavorites(response.data || []);
       })
       .catch(err => console.error("Error fetching favorites:", err));
-  }, []);
+  }, [user]);
 
   const removeFavorite = async (petId) => {
     try {
-      await apiClient.delete(`/favorites/${petId}`);
+      // Spring Boot: DELETE /favorites?userId={userId}&petId={petId}
+      await apiClient.delete('/favorites', { params: { userId: user.id, petId } });
       setFavorites(favorites.filter(f => f.petId !== petId));
     } catch (err) {
       console.error("Error removing favorite:", err);

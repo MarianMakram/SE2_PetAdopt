@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import * as signalR from '@microsoft/signalr';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useAuth } from './AuthContext';
 import apiClient from '../services/apiClient';
 
@@ -7,13 +6,34 @@ const NotificationContext = createContext();
 
 export const useNotifications = () => useContext(NotificationContext);
 
+// Polling interval for checking new notifications (30 seconds)
+const POLL_INTERVAL_MS = 30000;
+
 export const NotificationProvider = ({ children }) => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [connection, setConnection] = useState(null);
 
-  // Fetch initial notifications
+  // Fetch notifications from the Interaction Service via API Gateway
+  // Endpoint: GET /api/notifications/user/{userId}
+  const fetchNotifications = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      const response = await apiClient.get(`/notifications/user/${user.id}`);
+      const data = response.data || [];
+      setNotifications(data);
+      // Spring Boot Notification model uses 'isRead' (camelCase from Java boolean)
+      // Jackson serializes boolean 'isRead' as 'read' in JSON
+      setUnreadCount(data.filter(n => !n.read && !n.isRead).length);
+    } catch (error) {
+      // Notifications service may not be available yet — fail silently
+      if (error.response?.status !== 404) {
+        console.error('Error fetching notifications:', error);
+      }
+    }
+  }, [user?.id]);
+
+  // Fetch on mount and when user changes
   useEffect(() => {
     if (user) {
       fetchNotifications();
@@ -21,66 +41,24 @@ export const NotificationProvider = ({ children }) => {
       setNotifications([]);
       setUnreadCount(0);
     }
-  }, [user]);
+  }, [user, fetchNotifications]);
 
-  const fetchNotifications = async () => {
-    try {
-      const response = await apiClient.get('/notifications');
-      setNotifications(response.data);
-      setUnreadCount(response.data.filter(n => !n.is_read).length);
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-    }
-  };
-
-  // SignalR Connection
+  // Poll for new notifications every POLL_INTERVAL_MS
+  // This replaces the old SignalR real-time connection
   useEffect(() => {
-    if (user) {
-      const newConnection = new signalR.HubConnectionBuilder()
-        .withUrl('http://localhost:5251/hubs/notifications', {
-          accessTokenFactory: () => localStorage.getItem('accessToken')
-        })
-        .withAutomaticReconnect()
-        .build();
+    if (!user?.id) return;
 
-      setConnection(newConnection);
-    } else {
-      if (connection) {
-        connection.stop();
-        setConnection(null);
-      }
-    }
-  }, [user]);
+    const intervalId = setInterval(fetchNotifications, POLL_INTERVAL_MS);
+    return () => clearInterval(intervalId);
+  }, [user?.id, fetchNotifications]);
 
-  useEffect(() => {
-    if (connection) {
-      connection.start()
-        .then(() => {
-          console.log('Connected to SignalR Notification Hub');
-          connection.on('ReceiveNotification', (notification) => {
-            setNotifications(prev => [notification, ...prev]);
-            setUnreadCount(prev => prev + 1);
-            
-            // Optional: Browser Notification
-            if (Notification.permission === 'granted') {
-              new Notification(notification.title, { body: notification.message });
-            }
-          });
-        })
-        .catch(error => console.error('SignalR Connection Error: ', error));
-
-      return () => {
-        connection.off('ReceiveNotification');
-        connection.stop();
-      };
-    }
-  }, [connection]);
-
+  // Mark a single notification as read
+  // Endpoint: PATCH /api/notifications/{id}/read
   const markAsRead = async (id) => {
     try {
-      await apiClient.put(`/notifications/${id}/read`);
-      setNotifications(prev => 
-        prev.map(n => n.id === id ? { ...n, is_read: true } : n)
+      await apiClient.patch(`/notifications/${id}/read`);
+      setNotifications(prev =>
+        prev.map(n => n.id === id ? { ...n, read: true, isRead: true } : n)
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
@@ -88,10 +66,15 @@ export const NotificationProvider = ({ children }) => {
     }
   };
 
+  // Mark all notifications as read (client-side batch — backend doesn't have bulk endpoint)
   const markAllAsRead = async () => {
     try {
-      await apiClient.put('/notifications/read-all');
-      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+      // Mark each unread notification individually
+      const unreadNotifs = notifications.filter(n => !n.read && !n.isRead);
+      await Promise.all(
+        unreadNotifs.map(n => apiClient.patch(`/notifications/${n.id}/read`))
+      );
+      setNotifications(prev => prev.map(n => ({ ...n, read: true, isRead: true })));
       setUnreadCount(0);
     } catch (error) {
       console.error('Error marking all as read:', error);
@@ -99,12 +82,12 @@ export const NotificationProvider = ({ children }) => {
   };
 
   return (
-    <NotificationContext.Provider value={{ 
-      notifications, 
-      unreadCount, 
-      markAsRead, 
+    <NotificationContext.Provider value={{
+      notifications,
+      unreadCount,
+      markAsRead,
       markAllAsRead,
-      fetchNotifications 
+      fetchNotifications
     }}>
       {children}
     </NotificationContext.Provider>

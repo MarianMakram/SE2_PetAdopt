@@ -35,8 +35,8 @@ export default function OwnerPets() {
   useEffect(() => {
     const fetchPets = async () => {
       try {
-        console.log("Fetching pets from /shelter/pets...");
-        const response = await apiClient.get('/shelter/pets');
+        console.log("Fetching pets from /pets...");
+        const response = await apiClient.get('/pets');
         const petList = response.data?.data || response.data || [];
 
         console.log("Raw pet list from API:", petList);
@@ -49,16 +49,16 @@ export default function OwnerPets() {
           let isPending = false;
           let isRejected = false;
 
-          // Handle string enums or numeric enums
-          if (s === 1 || s === "PendingReview") {
+          // Handle Spring Boot PetStatus enum strings
+          if (s === "PENDING_REVIEW" || s === 1 || s === "PendingReview") {
             statusText = "Pending";
             isPending = true;
-          } else if (s === 2 || s === "Approved") {
+          } else if (s === "APPROVED" || s === 2 || s === "Approved") {
             statusText = "Approved";
-          } else if (s === 3 || s === "Adopted") {
+          } else if (s === "ADOPTED" || s === 3 || s === "Adopted") {
             statusText = "Adopted";
             isAdopted = true;
-          } else if (s === 4 || s === "Rejected") {
+          } else if (s === "REJECTED" || s === 4 || s === "Rejected") {
             statusText = "Rejected";
             isRejected = true;
           } else {

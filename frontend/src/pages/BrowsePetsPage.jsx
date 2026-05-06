@@ -23,15 +23,17 @@ export default function BrowsePetsPage() {
 
   useEffect(() => {
     fetchPets();
-    if (user?.role === 'Adopter') {
+    if (user?.role === 'Adopter' || user?.role === 'ADOPTER') {
       fetchFavorites();
     }
   }, [filters, user]);
 
   const fetchFavorites = async () => {
+    if (!user?.id) return;
     try {
-      const data = await apiClient.get('/favorites');
-      setFavoriteIds(data.data.map(f => f.petId));
+      // Spring Boot: GET /favorites/user/{userId}
+      const data = await apiClient.get(`/favorites/user/${user.id}`);
+      setFavoriteIds((data.data || []).map(f => f.petId));
     } catch (err) {
       console.error("Error fetching favorites:", err);
     }
@@ -43,15 +45,17 @@ export default function BrowsePetsPage() {
       navigate('/login');
       return;
     }
-    if (user.role !== 'Adopter') return;
+    if (user.role !== 'Adopter' && user.role !== 'ADOPTER') return;
 
     const isFav = favoriteIds.includes(petId);
     try {
       if (isFav) {
-        await apiClient.delete(`/favorites/${petId}`);
+        // Spring Boot: DELETE /favorites?userId={userId}&petId={petId}
+        await apiClient.delete('/favorites', { params: { userId: user.id, petId } });
         setFavoriteIds(favoriteIds.filter(id => id !== petId));
       } else {
-        await apiClient.post('/favorites', { petId });
+        // Spring Boot: POST /favorites { userId, petId }
+        await apiClient.post('/favorites', { userId: user.id, petId });
         setFavoriteIds([...favoriteIds, petId]);
       }
     } catch (err) {
@@ -156,7 +160,7 @@ export default function BrowsePetsPage() {
             <Link to={`/pets/${pet.id}`} key={pet.id} className="group">
               <div className="relative overflow-hidden rounded-t-xl rounded-b-md h-80">
                 <img className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={imgUrl} alt={pet.name} />
-                {user?.role !== 'Admin' && user?.role !== 'Shelter' && (
+                {user?.role !== 'Admin' && user?.role !== 'ADMIN' && user?.role !== 'Shelter' && user?.role !== 'SHELTER' && (
                   <button 
                     onClick={(e) => toggleFavorite(e, pet.id)}
                     className="absolute top-4 right-4 w-10 h-10 bg-[#ffffff]/80 backdrop-blur-md rounded-full flex items-center justify-center text-[#9b3e20] shadow-lg hover:scale-110 active:scale-95 transition-all"
