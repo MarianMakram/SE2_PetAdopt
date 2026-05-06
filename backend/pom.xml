@@ -29,6 +29,7 @@
 		<module>pet-service</module>
 		<module>eureka-server</module>
 		<module>api-gateway</module>
+        <module>authservice</module>
 	</modules>
 
 	<dependencyManagement>
