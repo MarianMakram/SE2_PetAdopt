@@ -77,28 +77,21 @@ const NavItem = ({ icon, label, active = false }) => (
 // ── Main Component ─────────────────────────────────────────────────────────
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
-
+  const { user: authUser, logout } = useAuth();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeNav, setActiveNav] = useState("profile");
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await apiClient.get('/auth/me');
-        const userData = response.data.data || response.data; // Handle wrapped or unwrapped
-        setUser(userData);
-      } catch (err) {
-        console.error("Profile fetch failed", err);
-        navigate("/login");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [navigate]);
+    // Since /auth/me is not implemented on the backend yet,
+    // we use the user data stored in the AuthContext.
+    if (authUser) {
+      setUser(authUser);
+      setLoading(false);
+    } else {
+      navigate("/login");
+    }
+  }, [authUser, navigate]);
 
   // logout
   const handleLogout = () => {
@@ -106,7 +99,7 @@ export default function ProfilePage() {
     navigate("/");
   };
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="min-h-screen flex justify-center items-center text-xl">
         Loading...
@@ -114,7 +107,7 @@ export default function ProfilePage() {
     );
   }
   const initials =
-  `${user?.first_name?.charAt(0) || ""}${user?.last_name?.charAt(0) || ""}`.toUpperCase();
+  `${user?.firstName?.charAt(0) || ""}${user?.lastName?.charAt(0) || ""}`.toUpperCase();
 
   return (
     <div
@@ -178,8 +171,8 @@ export default function ProfilePage() {
 
             {/* Fields Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
-              <ProfileField label="First Name"     value={user.first_name} />
-              <ProfileField label="Last Name"      value={user.last_name}  />
+              <ProfileField label="First Name"     value={user.firstName} />
+              <ProfileField label="Last Name"      value={user.lastName}  />
               <ProfileField label="Email Address"  value={user.email}      />
               <ProfileField label="Phone Number"   value={user.phone}      />
               <ProfileField label="City"           value={user.city}       />

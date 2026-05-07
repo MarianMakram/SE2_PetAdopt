@@ -48,7 +48,7 @@ export default function ApprovalItem({ pet, onApprove, onReject }) {
       </div>
 
       <div className="flex gap-3 w-full md:w-auto min-w-[200px] justify-center md:justify-end">
-        {pet.status === "PendingReview" ? (
+        {pet.status === "PENDING_REVIEW" ? (
           <>
             <button
               onClick={() => onReject && onReject(id)}
@@ -65,9 +65,9 @@ export default function ApprovalItem({ pet, onApprove, onReject }) {
           </>
         ) : (
           <span className={`px-8 py-3 rounded-full font-bold border-2 ${
-            pet.status === "Approved" 
-              ? "border-success text-success bg-success/5" 
-              : "border-error text-error bg-error/5"
+            pet.status === "APPROVED" 
+              ? "border-green-600 text-green-600 bg-green-50" 
+              : "border-red-600 text-red-600 bg-red-50"
           }`}>
             {pet.status}
           </span>

@@ -1,89 +1,55 @@
 import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 import Sidebar from "./SidebarAdd";
 
 // ── Images ──────────────────────────────────────────────────────────────────
+// ... (rest of imports/constants)
+const USER_IMG = "https://lh3.googleusercontent.com/aida-public/AB6AXuCllqjBLUU_YVcBJwMclBXg2UWYjfHrFB_kaHtuQtt7ZGkYC2I3WcIe8QZupa9yyjtcorIblDvtYla67QLP_3IIRmC9G8sMT03DJz1n9oS9_3REIn1CXqnftHBgrP4s1QCheWhFDYQfZ1WHZS7KRpmaapw-B0tEkJnJj82N8BLmI5KsgK_tuTmbLUody6_1D8pj3UBhwvYHvXY9CBp0ylNWt_DhCci2bfiQVYpbcZ3vkBXHvpo8JhGTnTMKzae20duva3tbuCPLkiA";
+const PET_IMG = "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80";
 
-const USER_IMG =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuCllqjBLUU_YVcBJwMclBXg2UWYjfHrFB_kaHtuQtt7ZGkYC2I3WcIe8QZupa9yyjtcorIblDvtYla67QLP_3IIRmC9G8sMT03DJz1n9oS9_3REIn1CXqnftHBgrP4s1QCheWhFDYQfZ1WHZS7KRpmaapw-B0tEkJnJj82N8BLmI5KsgK_tuTmbLUody6_1D8pj3UBhwvYHvXY9CBp0ylNWt_DhCci2bfiQVYpbcZ3vkBXHvpo8JhGTnTMKzae20duva3tbuCPLkiA";
-
-const PET_IMG =
-  "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80";
-
-// ── Shared Icon ──────────────────────────────────────────────────────────────
 const Icon = ({ name, size = 20, fill = 0, className = "" }) => (
-  <span
-    className={`material-symbols-outlined leading-none ${className}`}
-    style={{ fontSize: size, fontVariationSettings: `'FILL' ${fill}` }}
-  >
-    {name}
-  </span>
+  <span className={`material-symbols-outlined leading-none ${className}`} style={{ fontSize: size, fontVariationSettings: `'FILL' ${fill}` }}>{name}</span>
 );
 
-// ── Field wrapper ────────────────────────────────────────────────────────────
 const Field = ({ label, children }) => (
   <div>
-    <label className="block text-[10px] font-bold text-[#2c6370] uppercase tracking-widest mb-1.5">
-      {label}
-    </label>
+    <label className="block text-[10px] font-bold text-[#2c6370] uppercase tracking-widest mb-1.5">{label}</label>
     {children}
   </div>
 );
 
-const inputCls =
-  "w-full bg-[#adecff] border-none rounded-lg px-4 py-4  text-sm text-[#00343e] outline-none focus:ring-2 focus:ring-[#00656f]/40 transition-all placeholder:text-[#2c6370]/50";
+const inputCls = "w-full bg-[#adecff] border-none rounded-lg px-4 py-4  text-sm text-[#00343e] outline-none focus:ring-2 focus:ring-[#00656f]/40 transition-all placeholder:text-[#2c6370]/50";
 
-// ── Main Page ────────────────────────────────────────────────────────────────
 export default function AddPets({ initialData, onSubmit, onCancel, isEditMode }) {
+  const { user } = useAuth();
   const [name, setName] = useState(initialData?.name || "");
-  const [animalType, setAnimalType] = useState(
-    initialData?.species === 1 ? "Cat" :
-      initialData?.species === 2 ? "Bird" :
-        initialData?.species === 3 ? "Rabbit" : "Dog"
-  );
+  const [animalType, setAnimalType] = useState(initialData?.species === 1 ? "Cat" : initialData?.species === 2 ? "Bird" : initialData?.species === 3 ? "Rabbit" : "Dog");
   const [breed, setBreed] = useState(initialData?.breed || "");
   const [age, setAge] = useState(initialData?.age || "");
   const [ageUnit, setAgeUnit] = useState(initialData?.ageUnit === 0 ? "Months" : "Years");
   const [gender, setGender] = useState(initialData?.gender === 1 ? "female" : "male");
-  const [images, setImages] = useState(initialData?.imageUrls ? initialData.imageUrls.split(',') : []);
+  const [images, setImages] = useState(initialData?.imageUrls ? initialData.imageUrls.split('|') : []);
   const [newImageUrl, setNewImageUrl] = useState("");
-
-  // UI Only State (Not mapped to current backend)
   const [description, setDescription] = useState(initialData?.description || "");
   const [location, setLocation] = useState(initialData?.location || "");
   const [health, setHealth] = useState(initialData?.healthStatus ? initialData.healthStatus.split(', ') : ["Vaccinated", "Neutered"]);
 
-  const toggleHealth = (tag) =>
-    setHealth((h) => (h.includes(tag) ? h.filter((x) => x !== tag) : [...h, tag]));
-
-  const handleAddImage = () => {
-    if (newImageUrl && !images.includes(newImageUrl)) {
-      setImages([...images, newImageUrl]);
-      setNewImageUrl("");
-    }
-  };
-
-  const handleRemoveImage = (index) => {
-    setImages(images.filter((_, i) => i !== index));
-  };
+  const toggleHealth = (tag) => setHealth((h) => (h.includes(tag) ? h.filter((x) => x !== tag) : [...h, tag]));
+  const handleAddImage = () => { if (newImageUrl && !images.includes(newImageUrl)) { setImages([...images, newImageUrl]); setNewImageUrl(""); } };
+  const handleRemoveImage = (index) => { setImages(images.filter((_, i) => i !== index)); };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Map to backend Species enum
-    let speciesEnum = 0; // Dog
+    let speciesEnum = 0;
     if (animalType === "Cat") speciesEnum = 1;
     if (animalType === "Bird") speciesEnum = 2;
     if (animalType === "Rabbit") speciesEnum = 3;
-
-    // Map to backend Gender enum
     const genderEnum = gender === "female" ? 1 : 0;
-
-    // Map to backend AgeUnit enum
     const ageUnitEnum = ageUnit === "Months" ? 0 : 1;
 
     onSubmit({
       id: initialData?.id || 0,
-      ownerId: initialData?.ownerId || 0,
+      ownerId: initialData?.ownerId || user?.id || 0,
       name: name,
       breed: breed,
       age: parseInt(age) || 0,
@@ -93,8 +59,8 @@ export default function AddPets({ initialData, onSubmit, onCancel, isEditMode })
       description: description,
       location: location,
       healthStatus: health.join(', '),
-      imageUrls: images.join(',') || PET_IMG,
-      status: initialData?.status !== undefined ? initialData.status : 1 // Default to PendingReview
+      imageUrls: images.join('|') || PET_IMG,
+      status: initialData?.status !== undefined ? initialData.status : 1
     });
   };
 
@@ -154,7 +120,7 @@ export default function AddPets({ initialData, onSubmit, onCancel, isEditMode })
                 </p>
 
                 <Field label="Image URL">
-                  <div className="flex gap-2 mb-4">
+                  <div className="flex gap-2 mb-2">
                     <input
                       className={`${inputCls}`}
                       placeholder="https://..."
@@ -173,8 +139,38 @@ export default function AddPets({ initialData, onSubmit, onCancel, isEditMode })
                       onClick={handleAddImage}
                       className="px-4 py-2 rounded-xl border border-[#00656f] text-[#00656f] font-bold text-xs hover:bg-[#00656f]/5 transition-colors whitespace-nowrap"
                     >
-                      Add Image
+                      Add URL
                     </button>
+                  </div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="h-[1px] flex-1 bg-[#81b5c5]/20"></div>
+                    <span className="text-[10px] font-bold text-[#2c6370]/50">OR</span>
+                    <div className="h-[1px] flex-1 bg-[#81b5c5]/20"></div>
+                  </div>
+                  <div className="mb-4">
+                    <input
+                      type="file"
+                      id="pet-image-upload"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setImages([...images, reader.result]);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor="pet-image-upload"
+                      className="flex items-center justify-center gap-2 w-full py-4 rounded-xl border-2 border-dashed border-[#00656f]/30 text-[#00656f] font-bold text-sm hover:bg-[#00656f]/5 cursor-pointer transition-all active:scale-95"
+                    >
+                      <Icon name="upload" size={18} />
+                      Upload from Computer
+                    </label>
                   </div>
                 </Field>
 

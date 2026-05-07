@@ -162,16 +162,18 @@ export default function UserApprovalsPage() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get(`/admin/users/status/${filter}`);
+      // Spring Boot Auth Service: user management endpoint (TBD with Dev 2)
+      // Attempting /auth/users endpoint - may need adjustment once Dev 2 confirms
+      const response = await apiClient.get(`/auth/users`, { params: { status: filter } });
       const dataArray = response.data || [];
       const mappedData = dataArray.map(user => ({
-        id: user.id,
-        name: `${user.first_name} ${user.last_name}`.trim(),
+        id: user.id || user.userId,
+        name: `${user.firstName || user.first_name || ''} ${user.lastName || user.last_name || ''}`.trim(),
         email: user.email,
         phone: user.phone || 'N/A',
         location: [user.city, user.country].filter(Boolean).join(', ') || 'Unknown',
-        role: user.role === "Shelter" ? 'SHELTER' : 'ADOPTER',
-        status: user.account_status,
+        role: user.role || 'ADOPTER',
+        status: user.accountStatus || user.account_status || user.status,
       }));
       setUsers(mappedData);
     } catch (err) {
@@ -188,7 +190,8 @@ export default function UserApprovalsPage() {
 
   const handleApprove = async (id) => {
     try {
-      await apiClient.patch(`/admin/users/${id}/approve`);
+      // Spring Boot Auth Service: user approval (TBD with Dev 2)
+      await apiClient.put(`/auth/users/${id}/approve`);
       fetchUsers();
       showToast("User approved successfully!", "success");
     } catch (error) {
@@ -198,7 +201,8 @@ export default function UserApprovalsPage() {
 
   const handleReject = async (id) => {
     try {
-      await apiClient.patch(`/admin/users/${id}/reject`);
+      // Spring Boot Auth Service: user rejection (TBD with Dev 2)
+      await apiClient.put(`/auth/users/${id}/reject`);
       fetchUsers();
       showToast("User rejected successfully.", "success");
     } catch (error) {

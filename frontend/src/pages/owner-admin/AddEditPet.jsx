@@ -16,8 +16,9 @@ export default function AddEditPet() {
     const fetchPet = async () => {
       if (!isEditMode) return;
       try {
-        const data = await apiClient.get(`/shelter/pets/${id}`);
-        setInitialData(data);
+        const response = await apiClient.get(`/pets/${id}`);
+        // response.data contains the pet object directly from Spring Boot
+        setInitialData(response.data);
       } catch (err) {
         console.error("Failed to fetch pet", err);
         setError("Failed to load pet details.");
@@ -32,9 +33,9 @@ export default function AddEditPet() {
   const handleSubmit = async (formData) => {
     try {
       if (isEditMode) {
-        await apiClient.put(`/shelter/pets/${id}`, formData);
+        await apiClient.put(`/pets/${id}`, formData);
       } else {
-        await apiClient.post('/shelter/pets', formData);
+        await apiClient.post('/pets', formData);
       }
       navigate('/shelter/pets');
     } catch (err) {

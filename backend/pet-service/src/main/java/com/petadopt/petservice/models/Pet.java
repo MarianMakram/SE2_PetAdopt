@@ -28,8 +28,8 @@ public class Pet {
 
     private String breed;
 
-    private int age;
-    private int ageUnit; // 0 for Months, 1 for Years (optional mapping)
+    private Integer age;
+    private Integer ageUnit; // 0 for Months, 1 for Years (optional mapping)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -1,24 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient from '../services/apiClient';
+import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/owner-admin/Sidebar';
 import Header from '../components/owner-admin/Header';
 import BottomNav from '../components/owner-admin/BottomNav';
 
 export default function FavoritesPage() {
+  const { user } = useAuth();
   const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
-    apiClient.get('/favorites')
-      .then(response => {
-        setFavorites(response.data || []);
+    if (!user?.id) return;
+    // Spring Boot: GET /favorites/user/{userId}
+    apiClient.get(`/favorites/user/${user.id}`)
+      .then(async response => {
+        const favs = response.data || [];
+        // Enrich favorites with pet details
+        const enrichedFavs = await Promise.all(favs.map(async f => {
+          try {
+            const petRes = await apiClient.get(`/pets/${f.petId}`);
+            return { ...f, pet: petRes.data };
+          } catch (err) {
+            console.error(`Could not fetch pet ${f.petId}:`, err);
+            return f;
+          }
+        }));
+        setFavorites(enrichedFavs.filter(f => f.pet)); // Only show if pet details were found
       })
       .catch(err => console.error("Error fetching favorites:", err));
-  }, []);
+  }, [user]);
 
   const removeFavorite = async (petId) => {
     try {
-      await apiClient.delete(`/favorites/${petId}`);
+      // Spring Boot: DELETE /favorites?userId={userId}&petId={petId}
+      await apiClient.delete('/favorites', { params: { userId: user.id, petId } });
       setFavorites(favorites.filter(f => f.petId !== petId));
     } catch (err) {
       console.error("Error removing favorite:", err);
@@ -37,7 +53,7 @@ export default function FavoritesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {favorites.length > 0 ? favorites.map((fav) => {
               const pet = fav.pet;
-              const imgUrl = pet.imageUrls ? pet.imageUrls.split(',')[0] : "https://lh3.googleusercontent.com/aida-public/AB6AXuAFHUw8mCyhci96uVgVCrX-e9o0tXywR6WPfE9o4HGtWPxB9xaCf5iuxqdEHNbxOU4ewk0Fsw1U1GW5xLJ_QrLRfOowund1a_r5evXnA0NqZ7nMpF4SoKXClwx47Wk0EBFauekxSeWxW2Xeohze4pSfVWIKeZlTII09crZvpvMrxsCkCnj6Lx0KPrY_38axaITQSprbE90LDng_e5cEcVy_jMtpCpbOI6LqPRS20RxYlrs1iouGXzlq3uH9_CcPRfTlLBk3sJfL5wQ";
+              const imgUrl = pet.imageUrls ? pet.imageUrls.split('|')[0] : "https://lh3.googleusercontent.com/aida-public/AB6AXuAFHUw8mCyhci96uVgVCrX-e9o0tXywR6WPfE9o4HGtWPxB9xaCf5iuxqdEHNbxOU4ewk0Fsw1U1GW5xLJ_QrLRfOowund1a_r5evXnA0NqZ7nMpF4SoKXClwx47Wk0EBFauekxSeWxW2Xeohze4pSfVWIKeZlTII09crZvpvMrxsCkCnj6Lx0KPrY_38axaITQSprbE90LDng_e5cEcVy_jMtpCpbOI6LqPRS20RxYlrs1iouGXzlq3uH9_CcPRfTlLBk3sJfL5wQ";
               return (
                 <div key={fav.id} className="group relative">
                   <Link to={`/pets/${pet.id}`} className="block relative overflow-hidden rounded-t-xl rounded-b-md">

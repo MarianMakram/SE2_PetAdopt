@@ -83,8 +83,8 @@ export default function NotificationsPage() {
               notifications.map((notif) => (
                 <div
                   key={notif.id}
-                  onClick={() => !notif.is_read && markAsRead(notif.id)}
-                  className={`group relative p-6 rounded-[2rem] border transition-all cursor-pointer w-full ${notif.is_read
+                  onClick={() => !(notif.read || notif.isRead) && markAsRead(notif.id)}
+                  className={`group relative p-6 rounded-[2rem] border transition-all cursor-pointer w-full ${(notif.read || notif.isRead)
                     ? 'bg-white/40 border-cyan-100/30'
                     : 'bg-white border-cyan-200 shadow-lg scale-[1.01]'
                     }`}
@@ -98,23 +98,23 @@ export default function NotificationsPage() {
 
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center justify-between">
-                        <h3 className={`text-lg font-bold ${notif.is_read ? 'text-[#2c6370]' : 'text-[#00343e]'
+                        <h3 className={`text-lg font-bold ${(notif.read || notif.isRead) ? 'text-[#2c6370]' : 'text-[#00343e]'
                           }`}>
                           {notif.title}
                         </h3>
 
                         <span className="text-xs text-[#5c8a95] font-medium">
-                          {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true })}
+                          {formatDistanceToNow(new Date(notif.createdAt || notif.created_at), { addSuffix: true })}
                         </span>
                       </div>
 
-                      <p className={`leading-relaxed ${notif.is_read ? 'text-[#5c8a95]' : 'text-[#2c6370]'
+                      <p className={`leading-relaxed ${(notif.read || notif.isRead) ? 'text-[#5c8a95]' : 'text-[#2c6370]'
                         }`}>
                         {notif.message}
                       </p>
                     </div>
 
-                    {!notif.is_read && (
+                    {!(notif.read || notif.isRead) && (
                       <div className="absolute top-6 right-6 w-2 h-2 bg-[#00656f] rounded-full"></div>
                     )}
                   </div>

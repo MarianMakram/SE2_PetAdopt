@@ -8,7 +8,7 @@ export default function PetGrid({ pets, loading, error, setPets }) {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this pet?")) {
       try {
-        await apiClient.delete(`/shelter/pets/${id}`);
+        await apiClient.delete(`/pets/${id}`);
         // Remove pet from local state after successful deletion
         setPets(prevPets => prevPets.filter(pet => pet.id !== id));
       } catch (err) {

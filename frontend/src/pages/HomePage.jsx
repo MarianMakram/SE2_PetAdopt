@@ -15,19 +15,20 @@ export default function HomePage() {
   const { user } = useAuth();
 
   useEffect(() => {
-    apiClient.get('/pets', { params: { pageSize: 3 } })
+    apiClient.get('/pets')
       .then(response => {
-        const data = response.data?.data || response.data;
+        const data = response.data;
         if (Array.isArray(data)) {
           setFeaturedPets(data.slice(0, 3));
         }
       })
       .catch(err => console.error("Error fetching pets:", err));
 
-    if (user?.role === 'Adopter') {
-      apiClient.get('/favorites')
+    if (user?.role === 'Adopter' || user?.role === 'ADOPTER') {
+      // Spring Boot: GET /favorites/user/{userId}
+      apiClient.get(`/favorites/user/${user.id}`)
         .then(response => {
-          setFavoriteIds(response.data.map(f => f.petId));
+          setFavoriteIds((response.data || []).map(f => f.petId));
         })
         .catch(err => console.error("Error fetching favorites:", err));
     }
@@ -38,15 +39,17 @@ export default function HomePage() {
       navigate('/login');
       return;
     }
-    if (user.role !== 'Adopter') return;
+    if (user.role !== 'Adopter' && user.role !== 'ADOPTER') return;
 
     const isFav = favoriteIds.includes(petId);
     try {
       if (isFav) {
-        await apiClient.delete(`/favorites/${petId}`);
+        // Spring Boot: DELETE /favorites?userId={userId}&petId={petId}
+        await apiClient.delete('/favorites', { params: { userId: user.id, petId } });
         setFavoriteIds(favoriteIds.filter(id => id !== petId));
       } else {
-        await apiClient.post('/favorites', { petId });
+        // Spring Boot: POST /favorites { userId, petId }
+        await apiClient.post('/favorites', { userId: user.id, petId });
         setFavoriteIds([...favoriteIds, petId]);
       }
     } catch (err) {
@@ -82,18 +85,18 @@ export default function HomePage() {
               {/* Role-Based Portal Access */}
               {user && (
                 <div className="flex flex-wrap gap-3 pt-2">
-                  {user.role === 'Admin' ? (
+                  {user.role?.toUpperCase() === 'ADMIN' ? (
                     <>
                       <button onClick={() => navigate('/admin/pets')} className="px-6 py-3 bg-[#00656f] text-white rounded-full font-bold text-sm shadow-lg hover:shadow-xl transition-all">Pet Approvals</button>
                       <button onClick={() => navigate('/admin/users')} className="px-6 py-3 bg-[#ffc4b3] text-[#9b3e20] rounded-full font-bold text-sm shadow-lg hover:shadow-xl transition-all">User Approvals</button>
                     </>
-                  ) : user.role === 'Shelter' ? (
+                  ) : user.role?.toUpperCase() === 'SHELTER' ? (
                     <>
                       <button onClick={() => navigate('/shelter/pets')} className="px-6 py-3 bg-[#00656f] text-white rounded-full font-bold text-sm shadow-lg hover:shadow-xl transition-all">Dashboard</button>
                       <button onClick={() => navigate('/shelter/pets#pets-grid')} className="px-6 py-3 bg-[#89e9f6] text-[#00555d] rounded-full font-bold text-sm shadow-lg hover:shadow-xl transition-all">My Pets</button>
                       <button onClick={() => navigate('/shelter/requests')} className="px-6 py-3 bg-[#ffc4b3] text-[#9b3e20] rounded-full font-bold text-sm shadow-lg hover:shadow-xl transition-all">Requests</button>
                     </>
-                  ) : user.role === 'Adopter' ? (
+                  ) : user.role?.toUpperCase() === 'ADOPTER' ? (
                     <>
                       <button onClick={() => navigate('/my-requests')} className="px-6 py-3 bg-[#ffc4b3] text-[#9b3e20] rounded-full font-bold text-sm shadow-lg hover:shadow-xl transition-all">My Applications</button>
                       <button onClick={() => navigate('/favorites')} className="px-6 py-3 bg-[#89e9f6] text-[#00555d] rounded-full font-bold text-sm shadow-lg hover:shadow-xl transition-all">Favorites</button>
@@ -173,12 +176,12 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
               {featuredPets.length > 0 ? featuredPets.map((pet, idx) => {
-                const imgUrl = pet.imageUrls ? pet.imageUrls.split(',')[0] : "https://lh3.googleusercontent.com/aida-public/AB6AXuAFHUw8mCyhci96uVgVCrX-e9o0tXywR6WPfE9o4HGtWPxB9xaCf5iuxqdEHNbxOU4ewk0Fsw1U1GW5xLJ_QrLRfOowund1a_r5evXnA0NqZ7nMpF4SoKXClwx47Wk0EBFauekxSeWxW2Xeohze4pSfVWIKeZlTII09crZvpvMrxsCkCnj6Lx0KPrY_38axaITQSprbE90LDng_e5cEcVy_jMtpCpbOI6LqPRS20RxYlrs1iouGXzlq3uH9_CcPRfTlLBk3sJfL5wQ";
+                const imgUrl = pet.imageUrls ? pet.imageUrls.split('|')[0] : "https://lh3.googleusercontent.com/aida-public/AB6AXuAFHUw8mCyhci96uVgVCrX-e9o0tXywR6WPfE9o4HGtWPxB9xaCf5iuxqdEHNbxOU4ewk0Fsw1U1GW5xLJ_QrLRfOowund1a_r5evXnA0NqZ7nMpF4SoKXClwx47Wk0EBFauekxSeWxW2Xeohze4pSfVWIKeZlTII09crZvpvMrxsCkCnj6Lx0KPrY_38axaITQSprbE90LDng_e5cEcVy_jMtpCpbOI6LqPRS20RxYlrs1iouGXzlq3uH9_CcPRfTlLBk3sJfL5wQ";
                 return (
                   <div className={`group ${idx === 1 ? 'mt-8' : ''}`} key={pet.id}>
                     <div className="relative overflow-hidden rounded-t-xl rounded-b-md">
                       <img className="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110" src={imgUrl} alt={pet.name} />
-                      {user?.role !== 'Admin' && user?.role !== 'Shelter' && (
+                      {user?.role !== 'Admin' && user?.role !== 'ADMIN' && user?.role !== 'Shelter' && user?.role !== 'SHELTER' && (
                         <button
                           onClick={() => toggleFavorite(pet.id)}
                           className="absolute top-4 right-4 w-12 h-12 bg-[#ffffff]/80 backdrop-blur-md rounded-full flex items-center justify-center text-[#9b3e20] shadow-lg hover:scale-110 active:scale-95 transition-all"

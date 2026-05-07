@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import Sidebar from '../../components/owner-admin/Sidebar';
 import Header from '../../components/owner-admin/Header';
 import DashboardStats from '../../components/owner-admin/DashboardStats';
@@ -9,6 +10,7 @@ import BottomNav from '../../components/owner-admin/BottomNav';
 import apiClient from '../../services/apiClient';
 
 export default function OwnerPets() {
+  const { user } = useAuth();
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,8 +37,10 @@ export default function OwnerPets() {
   useEffect(() => {
     const fetchPets = async () => {
       try {
-        console.log("Fetching pets from /shelter/pets...");
-        const response = await apiClient.get('/shelter/pets');
+        console.log("Fetching pets for owner:", user?.id);
+        const response = await apiClient.get('/pets', { 
+          params: { ownerId: user?.id } 
+        });
         const petList = response.data?.data || response.data || [];
 
         console.log("Raw pet list from API:", petList);
@@ -49,23 +53,23 @@ export default function OwnerPets() {
           let isPending = false;
           let isRejected = false;
 
-          // Handle string enums or numeric enums
-          if (s === 1 || s === "PendingReview") {
+          // Handle Spring Boot PetStatus enum strings
+          if (s === "PENDING_REVIEW" || s === 1 || s === "PendingReview") {
             statusText = "Pending";
             isPending = true;
-          } else if (s === 2 || s === "Approved") {
+          } else if (s === "APPROVED" || s === 2 || s === "Approved") {
             statusText = "Approved";
-          } else if (s === 3 || s === "Adopted") {
+          } else if (s === "ADOPTED" || s === 3 || s === "Adopted") {
             statusText = "Adopted";
             isAdopted = true;
-          } else if (s === 4 || s === "Rejected") {
+          } else if (s === "REJECTED" || s === 4 || s === "Rejected") {
             statusText = "Rejected";
             isRejected = true;
           } else {
             statusText = s?.toString() || "Unknown";
           }
 
-          const imageUrl = pet.imageUrls ? pet.imageUrls.split(',')[0] : 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80';
+          const imageUrl = pet.imageUrls ? pet.imageUrls.split('|')[0] : 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80';
           const ageUnitText = pet.ageUnit === 0 || pet.ageUnit === "Months" ? (pet.age === 1 ? 'month' : 'months') : (pet.age === 1 ? 'year' : 'years');
 
           return {
@@ -92,7 +96,7 @@ export default function OwnerPets() {
     };
 
     fetchPets();
-  }, []);
+  }, [user]);
 
   const filteredPets = pets.filter(p => {
     if (activeFilter === 'Total') return true;
