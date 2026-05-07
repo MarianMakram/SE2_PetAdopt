@@ -9,18 +9,21 @@ import com.petadopt.authservice.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.HashMap;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
     public AuthResponse register(RegisterRequest request){
+        log.info("Registration attempt for email: {}", request.getEmail());
         if (userRepository.existsByEmail(request.getEmail())){
             throw new RuntimeException("Email already in use");
         }
@@ -35,7 +38,9 @@ public class AuthService {
                 .lastName(request.getLastName()).phone(request.getPhone()).city(request.getCity())
                 .country(request.getCountry()).role(request.getRole()).accountStatus(initialStatus)
                 .build();
+        log.info("Saving user to database...");
         userRepository.save(user);
+        log.info("User saved successfully with ID: {}", user.getId());
 
         HashMap<String , Object> extraClaims = new HashMap<>();
         extraClaims.put("role",user.getRole().name());
@@ -63,6 +68,11 @@ public class AuthService {
                 .refreshToken("placeholder-refresh-token")    //nftkroooooooo
                 .userId(user.getId()).email(user.getEmail()).firstName(user.getFirstName()).lastName(user.getLastName()).role(user.getRole())
                 .build();
+    }
+
+    public void logout(String refreshToken) {
+        log.info("Logout attempt for token: {}", refreshToken);
+        // In a real implementation, we would blacklist the token or remove it from a DB
     }
 
     public AuthResponse getMe(String email){

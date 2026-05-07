@@ -21,6 +21,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RuntimeException.class)
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.UNAUTHORIZED)
     public Map<String, String> handleRuntimeException(RuntimeException e) {
         Map<String, String> errorMap = new HashMap<>();
         errorMap.put("message", e.getMessage());
@@ -28,6 +29,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
     public Map<String, String> handleException(Exception e) {
         Map<String, String> errorMap = new HashMap<>();
         errorMap.put("message", "An unexpected error occurred: " + e.getMessage());

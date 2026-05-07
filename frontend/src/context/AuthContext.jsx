@@ -71,6 +71,10 @@ export const AuthProvider = ({ children }) => {
     // Spring Boot AuthResponse: { accessToken, refreshToken, userId, email, firstName, lastName, role }
     const data = response.data;
 
+    if (!data?.accessToken) {
+      throw new Error("Login failed: No access token received from server.");
+    }
+
     const { accessToken, refreshToken } = data;
 
     // Build a user object from the AuthResponse fields
