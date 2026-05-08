@@ -9,4 +9,7 @@ import java.util.Optional;
 public interface UserRepository  extends JpaRepository<User, Integer> {
     Optional<User> findByEmail(String email);  //optional :- 3l4an may yrg3 user ya null
     boolean existsByEmail(String email);
+    
+    java.util.List<User> findByAccountStatus(com.petadopt.authservice.models.enums.Status accountStatus);
+    java.util.List<User> findByRole(com.petadopt.authservice.models.enums.Role role);
 }

@@ -17,5 +17,9 @@ public class AuthResponse {
     private String email;
     private String firstName;
     private String lastName;
+    private String phone;
+    private String city;
+    private String country;
     private Role role;
+    private com.petadopt.authservice.models.enums.Status accountStatus;
 }

@@ -39,4 +39,21 @@ public class AuthController {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(authService.getMe(email));
     }
+
+    @GetMapping("/users")
+    public ResponseEntity<java.util.List<AuthResponse>> getUsersByStatus(@org.springframework.web.bind.annotation.RequestParam(required = false) String status) {
+        return ResponseEntity.ok(authService.getUsersByStatus(status));
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/users/{id}/approve")
+    public ResponseEntity<Void> approveUser(@org.springframework.web.bind.annotation.PathVariable Integer id) {
+        authService.approveUser(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/users/{id}/reject")
+    public ResponseEntity<Void> rejectUser(@org.springframework.web.bind.annotation.PathVariable Integer id) {
+        authService.rejectUser(id);
+        return ResponseEntity.ok().build();
+    }
 }
