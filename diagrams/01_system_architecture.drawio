@@ -1,0 +1,188 @@
+<mxfile host="app.diagrams.net" modified="2026-05-10T00:00:00.000Z" agent="PetAdopt" version="24.0.0" type="device">
+  <diagram id="arch-overview" name="System Architecture">
+    <mxGraphModel dx="1800" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="1">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b&gt;PetAdopt — Microservices Architecture&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=22;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="500" y="15" width="500" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- ========== USER BROWSER ========== -->
+        <mxCell id="browser-group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#43a047;strokeWidth=2;dashed=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="540" y="60" width="320" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="browser-label" value="&lt;b&gt;👤 User&apos;s Browser&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=top;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=11;fontColor=#2e7d32;" vertex="1" parent="1">
+          <mxGeometry x="640" y="62" width="130" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="react" value="&lt;b&gt;React Frontend&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Vite + React 19&lt;br&gt;Axios + JWT-decode&lt;br&gt;react-router v7&lt;br&gt;Port 3000 (dev) / 80 (Docker)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4CAF50;fontColor=#ffffff;strokeColor=#388E3C;strokeWidth=2;shadow=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="580" y="85" width="240" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrow: React → Gateway -->
+        <mxCell id="arrow-react-gw" value="&lt;font style=&quot;font-size:10px;&quot;&gt;All &lt;b&gt;/api/*&lt;/b&gt; calls&lt;br&gt;Axios + Bearer JWT&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;strokeColor=#FF6F00;fontColor=#BF360C;fontSize=10;" edge="1" source="react" target="gateway" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ========== DOCKER COMPOSE NETWORK ========== -->
+        <mxCell id="docker-network" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#1565C0;strokeWidth=3;dashed=1;dashPattern=8 4;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="1520" height="720" as="geometry"/>
+        </mxCell>
+        <mxCell id="docker-label" value="&lt;b&gt;🐳 Docker Compose Network: petadopt-network&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=13;fontColor=#0D47A1;" vertex="1" parent="1">
+          <mxGeometry x="55" y="225" width="340" height="24" as="geometry"/>
+        </mxCell>
+
+        <!-- ========== API GATEWAY ========== -->
+        <mxCell id="gateway" value="&lt;b&gt;API Gateway&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Spring Cloud Gateway&lt;br&gt;Port 8080&lt;br&gt;─────────────────&lt;br&gt;• Route matching&lt;br&gt;• CORS configuration&lt;br&gt;• Passes JWT headers&lt;br&gt;• Load balancing (lb://)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF6F00;fontColor=#ffffff;strokeColor=#E65100;strokeWidth=2;shadow=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="540" y="270" width="320" height="130" as="geometry"/>
+        </mxCell>
+
+        <!-- ========== EUREKA SERVER ========== -->
+        <mxCell id="eureka" value="&lt;b&gt;Eureka Server&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Service Registry&lt;br&gt;Port 8761&lt;br&gt;─────────────&lt;br&gt;Dashboard: /eureka&lt;br&gt;Health check: 30s&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7B1FA2;fontColor=#ffffff;strokeColor=#4A148C;strokeWidth=2;shadow=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="280" width="200" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrow: Gateway → Eureka (discovers) -->
+        <mxCell id="arrow-gw-eureka" value="&lt;font style=&quot;font-size:9px;&quot;&gt;discovers&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeWidth=2;strokeColor=#7B1FA2;dashed=1;dashPattern=5 3;fontColor=#4A148C;" edge="1" source="gateway" target="eureka" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ========== AUTH SERVICE ========== -->
+        <mxCell id="auth" value="&lt;b&gt;Auth Service&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Port 8082&lt;br&gt;─────────────────&lt;br&gt;• JWT generation (HS256)&lt;br&gt;• BCrypt passwords&lt;br&gt;• RBAC (3 roles)&lt;br&gt;• /api/auth/**&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C62828;fontColor=#ffffff;strokeColor=#B71C1C;strokeWidth=2;shadow=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="480" width="220" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- ========== PET SERVICE ========== -->
+        <mxCell id="pet" value="&lt;b&gt;Pet Service&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Port 8081&lt;br&gt;─────────────────&lt;br&gt;• Pet CRUD&lt;br&gt;• Search &amp; filter&lt;br&gt;• AOP logging&lt;br&gt;• /api/pets/**&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EF6C00;fontColor=#ffffff;strokeColor=#E65100;strokeWidth=2;shadow=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="380" y="480" width="220" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- ========== ADOPTION SERVICE ========== -->
+        <mxCell id="adoption" value="&lt;b&gt;Adoption Service&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Port 8083&lt;br&gt;─────────────────&lt;br&gt;• Adoption workflow&lt;br&gt;• Feign → Pet Service&lt;br&gt;• Status transitions&lt;br&gt;• /api/adoption-requests/**&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565C0;fontColor=#ffffff;strokeColor=#0D47A1;strokeWidth=2;shadow=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="680" y="480" width="250" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- ========== INTERACTION SERVICE ========== -->
+        <mxCell id="interaction" value="&lt;b&gt;Interaction Service&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Port 8084&lt;br&gt;─────────────────&lt;br&gt;• Favorites&lt;br&gt;• Reviews&lt;br&gt;• Notifications&lt;br&gt;• /api/favorites/** etc.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00695C;fontColor=#ffffff;strokeColor=#004D40;strokeWidth=2;shadow=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="480" width="220" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Routing arrows: Gateway → Services -->
+        <mxCell id="arrow-gw-auth" value="&lt;font style=&quot;font-size:9px;&quot;&gt;/api/auth/**&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#C62828;fontColor=#C62828;" edge="1" source="gateway" target="auth" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow-gw-pet" value="&lt;font style=&quot;font-size:9px;&quot;&gt;/api/pets/**&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#EF6C00;fontColor=#EF6C00;" edge="1" source="gateway" target="pet" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow-gw-adopt" value="&lt;font style=&quot;font-size:9px;&quot;&gt;/api/adoption-requests/**&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#1565C0;fontColor=#1565C0;" edge="1" source="gateway" target="adoption" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow-gw-interact" value="&lt;font style=&quot;font-size:9px;&quot;&gt;/api/favorites/**&lt;br&gt;/api/reviews/**&lt;br&gt;/api/notifications/**&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#00695C;fontColor=#00695C;" edge="1" source="gateway" target="interaction" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Services → Eureka (register) -->
+        <mxCell id="arrow-auth-eureka" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=1;strokeColor=#7B1FA2;dashed=1;dashPattern=3 3;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" source="auth" target="eureka" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow-pet-eureka" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=1;strokeColor=#7B1FA2;dashed=1;dashPattern=3 3;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" source="pet" target="eureka" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow-adopt-eureka" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=1;strokeColor=#7B1FA2;dashed=1;dashPattern=3 3;" edge="1" source="adoption" target="eureka" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow-interact-eureka" value="&lt;font style=&quot;font-size:9px;color:#7B1FA2;&quot;&gt;registers&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=1;strokeColor=#7B1FA2;dashed=1;dashPattern=3 3;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" source="interaction" target="eureka" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Feign: Adoption → Pet -->
+        <mxCell id="arrow-feign-adopt-pet" value="&lt;font style=&quot;font-size:9px;color:#D32F2F;&quot;&gt;&lt;b&gt;OpenFeign&lt;/b&gt;&lt;br&gt;Check pet availability&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#D32F2F;dashed=1;dashPattern=8 4;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="adoption" target="pet" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Feign: Pet → Interaction -->
+        <mxCell id="arrow-feign-pet-interact" value="&lt;font style=&quot;font-size:9px;color:#D32F2F;&quot;&gt;&lt;b&gt;OpenFeign&lt;/b&gt;&lt;br&gt;Send notification&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#D32F2F;dashed=1;dashPattern=8 4;exitX=1;exitY=0.7;exitDx=0;exitDy=0;entryX=0;entryY=0.7;entryDx=0;entryDy=0;" edge="1" source="pet" target="interaction" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="650" y="564"/>
+              <mxPoint x="650" y="620"/>
+              <mxPoint x="960" y="620"/>
+              <mxPoint x="960" y="564"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ========== POSTGRESQL ========== -->
+        <mxCell id="pg-container" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#E65100;strokeWidth=2;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="80" y="700" width="1150" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="pg-label" value="&lt;b&gt;🐘 PostgreSQL 15 Server (Single Container) — Port 5432&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;User: odoo / Password: odoo&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;fontColor=#BF360C;" vertex="1" parent="1">
+          <mxGeometry x="95" y="705" width="380" height="35" as="geometry"/>
+        </mxCell>
+
+        <!-- Database: authdb -->
+        <mxCell id="db-auth" value="&lt;b&gt;authdb&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;users&lt;br&gt;refresh_tokens&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#FFCDD2;strokeColor=#C62828;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="120" y="760" width="140" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Database: petdb -->
+        <mxCell id="db-pet" value="&lt;b&gt;petdb&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;pets&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#FFE0B2;strokeColor=#EF6C00;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="370" y="760" width="140" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Database: adoptiondb -->
+        <mxCell id="db-adopt" value="&lt;b&gt;adoptiondb&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;adoptions&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#BBDEFB;strokeColor=#1565C0;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="620" y="760" width="160" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Database: interactiondb -->
+        <mxCell id="db-interact" value="&lt;b&gt;interactiondb&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;favorites, reviews&lt;br&gt;notifications&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#B2DFDB;strokeColor=#00695C;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="890" y="760" width="170" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Service → DB arrows -->
+        <mxCell id="arrow-auth-db" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#C62828;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" source="auth" target="db-auth" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow-pet-db" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#EF6C00;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" source="pet" target="db-pet" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow-adopt-db" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#1565C0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" source="adoption" target="db-adopt" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow-interact-db" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#00695C;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" source="interaction" target="db-interact" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ========== LEGEND ========== -->
+        <mxCell id="legend-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#616161;strokeWidth=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="700" width="260" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-title" value="&lt;b&gt;Legend&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=13;fontColor=#212121;" vertex="1" parent="1">
+          <mxGeometry x="1295" y="705" width="60" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-1" value="&lt;font style=&quot;font-size:10px;&quot;&gt;━━ HTTP Request (from browser)&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#FF6F00;" vertex="1" parent="1">
+          <mxGeometry x="1290" y="735" width="200" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-2" value="&lt;font style=&quot;font-size:10px;&quot;&gt;┅┅ Gateway → Service route&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#1565C0;" vertex="1" parent="1">
+          <mxGeometry x="1290" y="760" width="180" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-3" value="&lt;font style=&quot;font-size:10px;&quot;&gt;- - - Eureka registration&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#7B1FA2;" vertex="1" parent="1">
+          <mxGeometry x="1290" y="785" width="160" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-4" value="&lt;font style=&quot;font-size:10px;&quot;&gt;━ ━ Cross-service (OpenFeign)&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#D32F2F;" vertex="1" parent="1">
+          <mxGeometry x="1290" y="810" width="190" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-5" value="&lt;font style=&quot;font-size:10px;&quot;&gt;━━ Service → Database (JDBC)&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#424242;" vertex="1" parent="1">
+          <mxGeometry x="1290" y="835" width="190" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-6" value="&lt;font style=&quot;font-size:10px;&quot;&gt;Each color matches its service&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#757575;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="1290" y="865" width="190" height="20" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

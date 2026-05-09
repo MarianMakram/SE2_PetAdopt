@@ -1,0 +1,138 @@
+<mxfile host="app.diagrams.net" modified="2026-05-10T00:00:00.000Z" agent="PetAdopt" version="24.0.0" type="device">
+  <diagram id="jwt-flow" name="JWT Authentication Flow">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="1">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b&gt;JWT Authentication Flow — Login &amp; Protected Request&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=20;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="340" y="15" width="520" height="35" as="geometry"/>
+        </mxCell>
+
+        <!-- ========== ACTORS ========== -->
+        <mxCell id="user-icon" value="&lt;b&gt;👤 React App&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;(Browser)&lt;/font&gt;" style="shape=actor;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#43A047;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="80" width="80" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="gw-box" value="&lt;b&gt;API Gateway&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Port 8080&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF6F00;fontColor=#fff;strokeColor=#E65100;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="340" y="85" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-box" value="&lt;b&gt;Auth Service&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Port 8082&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C62828;fontColor=#fff;strokeColor=#B71C1C;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="640" y="85" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="db-box" value="&lt;b&gt;authdb&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;PostgreSQL&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#FFCDD2;strokeColor=#C62828;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="940" y="75" width="100" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="pet-box" value="&lt;b&gt;Pet Service&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Port 8081&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EF6C00;fontColor=#fff;strokeColor=#E65100;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="640" y="570" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="petdb-box" value="&lt;b&gt;petdb&lt;/b&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#FFE0B2;strokeColor=#EF6C00;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="940" y="565" width="100" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- ========== PHASE 1: LOGIN ========== -->
+        <mxCell id="phase1-label" value="&lt;b&gt;PHASE 1: LOGIN&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#E8EAF6;fontSize=12;fontColor=#283593;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="180" width="120" height="25" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 1 -->
+        <mxCell id="s1" value="&lt;font style=&quot;font-size:10px;&quot;&gt;&lt;b&gt;①&lt;/b&gt; POST /api/auth/login&lt;br&gt;{ email, password }&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;strokeColor=#2E7D32;fontColor=#1B5E20;fontSize=10;" edge="1" parent="1">
+          <mxGeometry x="60" y="210" width="200" height="30" relative="1" as="geometry">
+            <mxPoint x="100" y="210" as="sourcePoint"/>
+            <mxPoint x="340" y="210" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Step 2 -->
+        <mxCell id="s2" value="&lt;font style=&quot;font-size:10px;&quot;&gt;&lt;b&gt;②&lt;/b&gt; Routes to auth-service&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#FF6F00;fontColor=#E65100;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="210" as="sourcePoint"/>
+            <mxPoint x="640" y="210" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Step 3 -->
+        <mxCell id="s3" value="&lt;font style=&quot;font-size:10px;&quot;&gt;&lt;b&gt;③&lt;/b&gt; Find user by email&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#C62828;fontColor=#B71C1C;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="760" y="230" as="sourcePoint"/>
+            <mxPoint x="940" y="230" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Step 4 -->
+        <mxCell id="s4" value="&lt;font style=&quot;font-size:10px;&quot;&gt;&lt;b&gt;④&lt;/b&gt; User entity returned&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#C62828;fontColor=#B71C1C;dashed=1;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="940" y="250" as="sourcePoint"/>
+            <mxPoint x="760" y="250" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Processing Box -->
+        <mxCell id="process-box" value="&lt;font style=&quot;font-size:10px;&quot;&gt;&lt;b&gt;⑤ Auth Service Logic:&lt;/b&gt;&lt;br&gt;a) Check accountStatus ≠ REJECTED/PENDING&lt;br&gt;b) BCrypt.matches(password, hash)&lt;br&gt;c) Generate JWT:&lt;br&gt;&amp;nbsp;&amp;nbsp;sub=email, role=ADOPTER&lt;br&gt;&amp;nbsp;&amp;nbsp;exp=now+15min&lt;br&gt;&amp;nbsp;&amp;nbsp;sign with HMAC-SHA256&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;strokeWidth=2;align=left;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="640" y="270" width="260" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 6 -->
+        <mxCell id="s6" value="&lt;font style=&quot;font-size:10px;&quot;&gt;&lt;b&gt;⑥&lt;/b&gt; AuthResponse { accessToken, userId, role... }&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#C62828;fontColor=#B71C1C;dashed=1;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="640" y="400" as="sourcePoint"/>
+            <mxPoint x="100" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Storage Box -->
+        <mxCell id="storage-box" value="&lt;font style=&quot;font-size:10px;&quot;&gt;&lt;b&gt;⑦ React stores in localStorage:&lt;/b&gt;&lt;br&gt;• localStorage.setItem('accessToken', jwt)&lt;br&gt;• localStorage.setItem('user', JSON.stringify(userData))&lt;br&gt;• setUser(userData) → updates React context&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#43A047;strokeWidth=2;align=left;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="420" width="340" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- ========== PHASE 2: PROTECTED REQUEST ========== -->
+        <mxCell id="phase2-label" value="&lt;b&gt;PHASE 2: PROTECTED API CALL (e.g. GET /api/pets)&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#FFF3E0;fontSize=12;fontColor=#E65100;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="530" width="380" height="25" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 8 -->
+        <mxCell id="s8" value="&lt;font style=&quot;font-size:10px;&quot;&gt;&lt;b&gt;⑧&lt;/b&gt; Axios interceptor auto-attaches:&lt;br&gt;Authorization: Bearer eyJhbG...&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#2E7D32;fontColor=#1B5E20;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="100" y="570" as="sourcePoint"/>
+            <mxPoint x="340" y="570" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Step 9 -->
+        <mxCell id="s9" value="&lt;font style=&quot;font-size:10px;&quot;&gt;&lt;b&gt;⑨&lt;/b&gt; Routes + forwards JWT header&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#FF6F00;fontColor=#E65100;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="590" as="sourcePoint"/>
+            <mxPoint x="640" y="590" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Validation Box -->
+        <mxCell id="valid-box" value="&lt;font style=&quot;font-size:10px;&quot;&gt;&lt;b&gt;⑩ JwtAuthenticationFilter:&lt;/b&gt;&lt;br&gt;a) Extract Bearer token from header&lt;br&gt;b) jwtService.extractUsername(jwt)&lt;br&gt;c) jwtService.isTokenValid(jwt, email)&lt;br&gt;&amp;nbsp;&amp;nbsp;→ verify signature + check expiry&lt;br&gt;d) Set SecurityContext → authenticated&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;strokeWidth=2;align=left;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="640" y="640" width="280" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 11 -->
+        <mxCell id="s11" value="&lt;font style=&quot;font-size:10px;&quot;&gt;&lt;b&gt;⑪&lt;/b&gt; Query pets&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#EF6C00;fontColor=#E65100;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="760" y="760" as="sourcePoint"/>
+            <mxPoint x="940" y="760" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Step 12 -->
+        <mxCell id="s12" value="&lt;font style=&quot;font-size:10px;&quot;&gt;&lt;b&gt;⑫&lt;/b&gt; 200 OK [ { id:1, name:&quot;Luna&quot;, species:&quot;Cat&quot; } ... ]&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#EF6C00;fontColor=#E65100;dashed=1;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="640" y="790" as="sourcePoint"/>
+            <mxPoint x="100" y="790" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- JWT Structure -->
+        <mxCell id="jwt-struct" value="&lt;b&gt;JWT Token Structure (decoded)&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:9px;font-family:monospace;&quot;&gt;HEADER: { &quot;alg&quot;: &quot;HS256&quot;, &quot;typ&quot;: &quot;JWT&quot; }&lt;br&gt;&lt;br&gt;PAYLOAD: {&lt;br&gt;&amp;nbsp;&amp;nbsp;&quot;sub&quot;: &quot;ahmed@example.com&quot;,&lt;br&gt;&amp;nbsp;&amp;nbsp;&quot;role&quot;: &quot;ADOPTER&quot;,&lt;br&gt;&amp;nbsp;&amp;nbsp;&quot;iat&quot;: 1715123456,&lt;br&gt;&amp;nbsp;&amp;nbsp;&quot;exp&quot;: 1715124356&lt;br&gt;}&lt;br&gt;&lt;br&gt;SIGNATURE: HMAC-SHA256(&lt;br&gt;&amp;nbsp;&amp;nbsp;base64(header).base64(payload),&lt;br&gt;&amp;nbsp;&amp;nbsp;SECRET_KEY&lt;br&gt;)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;strokeWidth=2;align=left;fontSize=10;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="270" width="280" height="250" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
