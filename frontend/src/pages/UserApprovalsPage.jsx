@@ -166,15 +166,19 @@ export default function UserApprovalsPage() {
       // Attempting /auth/users endpoint - may need adjustment once Dev 2 confirms
       const response = await apiClient.get(`/auth/users`, { params: { status: filter } });
       const dataArray = response.data || [];
-      const mappedData = dataArray.map(user => ({
-        id: user.id || user.userId,
-        name: `${user.firstName || user.first_name || ''} ${user.lastName || user.last_name || ''}`.trim(),
-        email: user.email,
-        phone: user.phone || 'N/A',
-        location: [user.city, user.country].filter(Boolean).join(', ') || 'Unknown',
-        role: user.role || 'ADOPTER',
-        status: user.accountStatus || user.account_status || user.status,
-      }));
+      const mappedData = dataArray.map(user => {
+        // Handle various possible field names from backend and ensure uppercase
+        const rawStatus = user.accountStatus || user.account_status || user.status || "PENDING";
+        return {
+          id: user.id || user.userId,
+          name: `${user.firstName || user.first_name || ''} ${user.lastName || user.last_name || ''}`.trim(),
+          email: user.email,
+          phone: user.phone || 'N/A',
+          location: [user.city, user.country].filter(Boolean).join(', ') || 'Unknown',
+          role: user.role || 'ADOPTER',
+          status: rawStatus.toString().toUpperCase(),
+        };
+      });
       setUsers(mappedData);
     } catch (err) {
       console.error("Failed to fetch users", err);
