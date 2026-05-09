@@ -84,6 +84,10 @@ export const AuthProvider = ({ children }) => {
       firstName: data.firstName,
       lastName: data.lastName,
       role: data.role, // ADMIN, SHELTER, or ADOPTER
+      phone: data.phone,
+      city: data.city,
+      country: data.country,
+      accountStatus: data.accountStatus,
     };
 
     localStorage.setItem('accessToken', accessToken);

@@ -32,6 +32,15 @@ public class AdoptionServiceImpl implements AdoptionService {
             throw new RuntimeException("Pet not found with id: " + adoption.getPetId());
         }
 
+        List<Adoption> existing = adoptionRepository.findByAdopterId(adoption.getAdopterId());
+        boolean alreadyRequested = existing.stream()
+                .anyMatch(a -> a.getPetId() == adoption.getPetId()
+                        && a.getStatus() != RequestStatus.REJECTED);
+
+        if (alreadyRequested) {
+            throw new RuntimeException("You already have an active request for this pet.");
+        }
+
         // Verify pet is available (using status from pet-service)
         if (!"APPROVED".equalsIgnoreCase(pet.getStatus()) && !"PendingReview".equalsIgnoreCase(pet.getStatus())) {
              // In development, we might allow PendingReview pets to be requested

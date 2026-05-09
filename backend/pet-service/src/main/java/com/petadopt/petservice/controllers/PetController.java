@@ -7,6 +7,7 @@ import com.petadopt.petservice.services.PetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,18 +48,22 @@ public class PetController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('SHELTER') or hasRole('ADMIN')")
     public ResponseEntity<Pet> addPet(@RequestBody Pet pet) {
         return new ResponseEntity<>(petService.addPet(pet), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('SHELTER') or hasRole('ADMIN')")
     public ResponseEntity<Pet> updatePet(@PathVariable Long id, @RequestBody Pet pet) {
         return ResponseEntity.ok(petService.updatePet(id, pet));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('SHELTER') or hasRole('ADMIN')")
     public ResponseEntity<Void> deletePet(@PathVariable Long id) {
         petService.deletePet(id);
         return ResponseEntity.noContent().build();
     }
 }
+

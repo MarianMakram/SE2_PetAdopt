@@ -4,6 +4,35 @@ import apiClient from '../services/apiClient';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/owner-admin/Header';
 
+function Snackbar({ snack, onClose }) {
+  if (!snack) return null;
+  const isSuccess = snack.type === "success";
+  const bg = isSuccess ? "#00656f" : "#9b3e20";
+
+  return (
+      <div style={{
+        position: "fixed", bottom: 32, left: "50%",
+        transform: "translateX(-50%)", zIndex: 9999,
+        display: "flex", alignItems: "flex-start", gap: 12,
+        padding: "14px 20px", borderRadius: 16,
+        backgroundColor: bg, color: "#fff",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
+        minWidth: 300, maxWidth: 480,
+        fontFamily: "'Be Vietnam Pro', sans-serif",
+        animation: "slideUp 0.3s ease",
+      }}>
+        <style>{`
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+          to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+      `}</style>
+        <span style={{ fontSize: 20, marginTop: 1, flexShrink: 0 }}>{isSuccess ? "✅" : "❌"}</span>
+        <p style={{ margin: 0, fontSize: 13, fontWeight: 600, lineHeight: 1.5 }}>{snack.message}</p>
+        <button onClick={onClose} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "#fff", opacity: 0.7, padding: 0, paddingLeft: 8, fontSize: 18 }}>✕</button>
+      </div>
+  );
+}
 export default function PetDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -15,11 +44,16 @@ export default function PetDetailsPage() {
   const [whyThisPet, setWhyThisPet] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-
+  const [snack, setSnack] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
   const [submittingReview, setSubmittingReview] = useState(false);
+
+  const showSnack = (message, type = "success") => {
+    setSnack({ message, type });
+    setTimeout(() => setSnack(null), 5000);
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -81,8 +115,15 @@ export default function PetDetailsPage() {
         setSuccess(false);
       }, 2000);
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to submit request.");
-    } finally {
+    console.log("err.response:", err.response);
+    console.log("err.response.data:", err.response?.data);
+    console.log("type:", typeof err.response?.data);
+    const data = err.response?.data;
+    const message = typeof data === "string"
+        ? data
+        : data?.message || "Something went wrong, please try again.";
+    showSnack(message, "error");
+  }finally {
       setIsSubmitting(false);
     }
   };
@@ -131,6 +172,7 @@ export default function PetDetailsPage() {
 
   return (
     <div className="w-full bg-[#e9f9ff] text-[#00343e] min-h-screen font-body flex flex-col">
+      <Snackbar snack={snack} onClose={() => setSnack(null)} />
       <Header />
 
       <main className="flex-1 pt-24 pb-24 px-8 max-w-7xl mx-auto w-full">

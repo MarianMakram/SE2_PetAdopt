@@ -88,12 +88,12 @@ const UserRow = ({ user, onApprove, onReject }) => {
       </td>
       <td className="p-6 whitespace-nowrap">
         <div className="flex items-center justify-end gap-3 pr-4">
-          {user.status === "Pending" ? (
+          {user.status?.toUpperCase() === "PENDING" ? (
             <>
               <Button variant="primary" onClick={() => onApprove(user.id)}>Approve</Button>
               <Button variant="error" onClick={() => onReject(user.id)}>Reject</Button>
             </>
-          ) : user.status === "Approved" ? (
+          ) : user.status?.toUpperCase() === "APPROVED" ? (
             <span className="text-[#257F86] font-bold text-[13px]">Approved</span>
           ) : (
             <span className="text-[#FF6B6B] font-bold text-[13px]">Rejected</span>
