@@ -8,6 +8,8 @@ import com.petadopt.petservice.services.PetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import com.petadopt.petservice.client.InteractionServiceClient;
+import com.petadopt.petservice.models.dto.NotificationRequest;
 import java.util.List;
 
 @Service
@@ -15,10 +17,25 @@ import java.util.List;
 public class PetServiceImpl implements PetService {
 
     private final PetRepository petRepository;
+    private final InteractionServiceClient interactionServiceClient;
 
     @Override
     public Pet addPet(Pet pet) {
-        return petRepository.save(pet);
+        Pet savedPet = petRepository.save(pet);
+        
+        try {
+            // Hardcode 9L as the admin id based on the seed
+            NotificationRequest notification = NotificationRequest.builder()
+                    .userId(9L)
+                    .message("New pet creation request pending approval: " + savedPet.getName() + " (" + savedPet.getSpecies() + ")")
+                    .type("PET_APPROVAL")
+                    .build();
+            interactionServiceClient.createNotification(notification);
+        } catch (Exception e) {
+            System.err.println("Failed to send notification to admin: " + e.getMessage());
+        }
+
+        return savedPet;
     }
 
     @Override

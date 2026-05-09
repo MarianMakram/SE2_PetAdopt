@@ -1,5 +1,7 @@
 package com.petadopt.adoptionservice.services.impl;
 
+import com.petadopt.adoptionservice.client.InteractionServiceClient;
+import com.petadopt.adoptionservice.models.dto.NotificationRequest;
 import com.petadopt.adoptionservice.client.PetServiceClient;
 import com.petadopt.adoptionservice.models.Adoption;
 import com.petadopt.adoptionservice.models.Pet;
@@ -18,6 +20,7 @@ public class AdoptionServiceImpl implements AdoptionService {
 
     private final AdoptionRepository adoptionRepository;
     private final PetServiceClient petServiceClient;
+    private final InteractionServiceClient interactionServiceClient;
 
 
     @Override
@@ -38,8 +41,20 @@ public class AdoptionServiceImpl implements AdoptionService {
         adoption.setOwnerId(pet.getOwnerId());
         adoption.setStatus(RequestStatus.PENDING);
         adoption.setRequestedAt(LocalDateTime.now());
-        
-        return adoptionRepository.save(adoption);
+        Adoption savedAdoption = adoptionRepository.save(adoption);
+
+        try {
+            NotificationRequest notification = NotificationRequest.builder()
+                    .userId((long) pet.getOwnerId())
+                    .message("New adoption request received for " + pet.getName() + " from user " + adoption.getAdopterId())
+                    .type("ADOPTION_REQUEST")
+                    .build();
+            interactionServiceClient.createNotification(notification);
+        } catch (Exception e) {
+            System.err.println("FAILED to send notification to owner: " + e.getMessage());
+        }
+
+        return savedAdoption;
     }
 
     @Override
@@ -87,6 +102,18 @@ public class AdoptionServiceImpl implements AdoptionService {
             System.err.println("FAILED to update pet status to ADOPTED: " + e.getMessage());
         }
 
+        try {
+            Pet pet = petServiceClient.getPetById((long) adoption.getPetId());
+            NotificationRequest notification = NotificationRequest.builder()
+                    .userId((long) adoption.getAdopterId())
+                    .message("Your adoption request for " + (pet != null ? pet.getName() : "a pet") + " has been APPROVED!")
+                    .type("Success")
+                    .build();
+            interactionServiceClient.createNotification(notification);
+        } catch (Exception e) {
+            System.err.println("FAILED to send notification to adopter: " + e.getMessage());
+        }
+
         return savedAdoption;
     }
 
@@ -99,7 +126,21 @@ public class AdoptionServiceImpl implements AdoptionService {
         adoption.setRejectionReason(reason);
         adoption.setRespondedAt(LocalDateTime.now());
 
-        return adoptionRepository.save(adoption);
+        Adoption savedAdoption = adoptionRepository.save(adoption);
+
+        try {
+            Pet pet = petServiceClient.getPetById((long) adoption.getPetId());
+            NotificationRequest notification = NotificationRequest.builder()
+                    .userId((long) adoption.getAdopterId())
+                    .message("Your adoption request for " + (pet != null ? pet.getName() : "a pet") + " has been REJECTED.")
+                    .type("Error")
+                    .build();
+            interactionServiceClient.createNotification(notification);
+        } catch (Exception e) {
+            System.err.println("FAILED to send notification to adopter: " + e.getMessage());
+        }
+
+        return savedAdoption;
     }
 }
 
