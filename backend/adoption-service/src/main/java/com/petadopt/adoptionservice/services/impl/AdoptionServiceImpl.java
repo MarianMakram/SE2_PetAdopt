@@ -8,6 +8,7 @@ import com.petadopt.adoptionservice.models.Pet;
 import com.petadopt.adoptionservice.models.enums.RequestStatus;
 import com.petadopt.adoptionservice.repositories.AdoptionRepository;
 import com.petadopt.adoptionservice.services.AdoptionService;
+import com.petadopt.adoptionservice.services.KafkaProducerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ public class AdoptionServiceImpl implements AdoptionService {
     private final AdoptionRepository adoptionRepository;
     private final PetServiceClient petServiceClient;
     private final InteractionServiceClient interactionServiceClient;
+    private final KafkaProducerService kafkaProducerService;
 
 
     @Override
@@ -102,13 +104,14 @@ public class AdoptionServiceImpl implements AdoptionService {
         
         Adoption savedAdoption = adoptionRepository.save(adoption);
 
-        // Update pet status to ADOPTED in pet-service
+        // Kafka Event - Notify other services that a pet has been adopted
+        // This now handles the status update in pet-service asynchronously
         try {
-            Pet petUpdate = new Pet();
-            petUpdate.setStatus("ADOPTED");
-            petServiceClient.updatePet((long) adoption.getPetId(), petUpdate);
+            String eventMessage = String.format("{\"petId\": %d, \"adopterId\": %d, \"status\": \"ADOPTED\"}", 
+                adoption.getPetId(), adoption.getAdopterId());
+            kafkaProducerService.sendMessage("pet-adopted", eventMessage);
         } catch (Exception e) {
-            System.err.println("FAILED to update pet status to ADOPTED: " + e.getMessage());
+            System.err.println("FAILED to send Kafka message for pet adoption: " + e.getMessage());
         }
 
         try {

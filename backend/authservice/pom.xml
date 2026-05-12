@@ -11,8 +11,8 @@
     <groupId>com.petadopt</groupId>
     <artifactId>authservice</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name/>
-    <description/>
+    <name>auth-service</name>
+    <description>Authentication Service for PetAdopt</description>
     <url/>
     <licenses>
         <license/>
@@ -111,6 +111,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <!-- Kafka -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
         </dependency>
     </dependencies>
 

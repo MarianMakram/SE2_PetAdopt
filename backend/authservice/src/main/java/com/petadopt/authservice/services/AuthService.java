@@ -21,6 +21,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final KafkaProducerService kafkaProducerService;
 
     public AuthResponse register(RegisterRequest request){
         log.info("Registration attempt for email: {}", request.getEmail());
@@ -41,6 +42,15 @@ public class AuthService {
         log.info("Saving user to database...");
         userRepository.save(user);
         log.info("User saved successfully with ID: {}", user.getId());
+
+        // Kafka Event
+        try {
+            String eventMessage = String.format("{\"userId\": %d, \"email\": \"%s\", \"role\": \"%s\"}", 
+                user.getId(), user.getEmail(), user.getRole().name());
+            kafkaProducerService.sendMessage("user-registered", eventMessage);
+        } catch (Exception e) {
+            log.error("Failed to send Kafka message for user registration: {}", e.getMessage());
+        }
 
         HashMap<String , Object> extraClaims = new HashMap<>();
         extraClaims.put("role",user.getRole().name());
